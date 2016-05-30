@@ -1,0 +1,30 @@
+dnd35/dnd35=Wizards of the Coast/Dungeons & Dragons 3.5/Dungeons & Dragons 3.5
+
+pathfinder/Pathfinder=Paizo/Pathfinder/Pathfinder
+pathfinder/Pathfinder Adventure Path=Paizo/Pathfinder/Pathfinder Adventure Path
+pathfinder/Pathfinder Roleplaying Game=Paizo/Pathfinder/Pathfinder Roleplaying Game
+
+pathfinder/Pathfinder Society/Pathfinder Society=Paizo/Pathfinder Society/Pathfinder Society
+pathfinder/Pathfinder Society/Year of the Sky Key=Paizo/Pathfinder Society/Year of the Sky Key
+pathfinder/Pathfinder Society/Year of the Demon=Paizo/Pathfinder Society/Year of the Demon
+
+pathfinder/Pathfinder Adventure Path/1 Rise of the Runelords=Paizo/Pathfinder Adventure Path/Rise of the Runelords
+pathfinder/Pathfinder Adventure Path/1 Rise of the Runelords - Horizontal=Paizo/Pathfinder Adventure Path/Rise of the Runelords - Horizontal
+pathfinder/Pathfinder Adventure Path/2 Curse of the Crimson Throne=Paizo/Pathfinder Adventure Path/Curse of the Crimson Throne
+pathfinder/Pathfinder Adventure Path/3 Second Darkness=Paizo/Pathfinder Adventure Path/Second Darkness
+pathfinder/Pathfinder Adventure Path/4 Legacy of Fire=Paizo/Pathfinder Adventure Path/Legacy of Fire
+pathfinder/Pathfinder Adventure Path/5 Council of Thieves=Paizo/Pathfinder Adventure Path/Council of Thieves
+pathfinder/Pathfinder Adventure Path/6 Kingmaker=Paizo/Pathfinder Adventure Path/Kingmaker
+pathfinder/Pathfinder Adventure Path/7 Serpents Skull=Paizo/Pathfinder Adventure Path/Serpent's Skull
+pathfinder/Pathfinder Adventure Path/8 Carrion Crown=Paizo/Pathfinder Adventure Path/Carrion Crown
+pathfinder/Pathfinder Adventure Path/9 Jade Regent=Paizo/Pathfinder Adventure Path/Jade Regent
+pathfinder/Pathfinder Adventure Path/10 Skull and Shackles - Horizontal=Paizo/Pathfinder Adventure Path/Skull and Shackles - Horizontal
+pathfinder/Pathfinder Adventure Path/10 Skull and Shackles=Paizo/Pathfinder Adventure Path/Skull and Shackles
+pathfinder/Pathfinder Adventure Path/11 Shattered Star=Paizo/Pathfinder Adventure Path/Shattered Star
+pathfinder/Pathfinder Adventure Path/12 Reign of Winter=Paizo/Pathfinder Adventure Path/Reign of Winter
+pathfinder/Pathfinder Adventure Path/13 Wrath of the Righteous=Paizo/Pathfinder Adventure Path/Wrath of the Righteous
+pathfinder/Pathfinder Adventure Path/14 Mummys Mask=Paizo/Pathfinder Adventure Path/Mummys Mask
+pathfinder/Pathfinder Adventure Path/15 Iron Gods=Paizo/Pathfinder Adventure Path/Iron Gods
+pathfinder/Pathfinder Adventure Path/16 Giantslayer=Paizo/Pathfinder Adventure Path/Giantslayer
+
+third-party/neoexodus=3rd Party/NeoExodus - A House Divided
