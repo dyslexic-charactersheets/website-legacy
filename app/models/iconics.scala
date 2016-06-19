@@ -2,6 +2,7 @@ package models
 
 import java.io.File
 import scala.io.Source
+import play.api._
 
 
 //  Iconics
@@ -21,9 +22,10 @@ case class IconicImage(set: IconicSet, fileName: String, niceName: String) {
   val path = set.filePath+"/"+fileName
   val id = set.id+"-"+slug(fileName)
   val sortableName = id
-  val largeFile = if (fileName == "") "" else "public/images/iconics/large/"+set.filePath+"/"+fileName+".png"
-  val smallFile = if (fileName == "") "" else"public/images/iconics/small/"+set.filePath+"/"+fileName+".png"
-  val url = if (fileName == "") "" else ("/images/iconics/small/"+set.filePath+"/"+fileName+".png").replaceAll(" ", "+")
+  val largeFile = if (fileName == "") "" else IconicImage.pdfPath+"iconics/large/"+set.filePath+"/"+fileName+".png"
+  val smallFile = if (fileName == "") "" else "public/images/iconics/"+set.filePath+"/"+fileName+".png"
+  val url = if (fileName == "") "" else ("/images/iconics/"+set.filePath+"/"+fileName+".png").replaceAll(" ", "+")
+
 
   def copyright: Option[IconicCopyright] = {
     def cr(folder: File): Option[IconicCopyright] = {
@@ -52,11 +54,12 @@ case class IconicImage(set: IconicSet, fileName: String, niceName: String) {
 case class IconicCopyright (copyright: String, url: Option[String], license: Option[String])
 
 object IconicImage {
+  val pdfPath: String = Play.current.configuration.getString("charactersheets.pdf.path").getOrElse("public/pdf/")
   lazy val iconics: List[IconicImage] = {
-    val iconicsFolder = new File("public/images/iconics")
-    if (!iconicsFolder.isDirectory) Nil
-    else {
-      val iconicsList = new File("public/images/iconics/iconics.txt")
+    // val iconicsFolder = new File("public/images/iconics")
+    // if (!iconicsFolder.isDirectory) Nil
+    // else {
+      val iconicsList = new File(pdfPath+"iconics/iconics.txt")
       val lines = scala.io.Source.fromFile(iconicsList).getLines.toList
       val iconics = lines.flatMap { line =>
         try {
@@ -74,7 +77,7 @@ object IconicImage {
       println("Found "+iconics.length+" iconics")
 
       iconics.sortBy(_.sortableName)
-    }
+    // }
   }
 
   val emptyIconic = IconicImage(IconicSet("", ""), "", "")

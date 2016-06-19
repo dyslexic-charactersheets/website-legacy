@@ -294,7 +294,7 @@ object Composer extends Controller {
 
       //  generic image
       if (!character.hasCustomIconic && !character.iconic.isDefined && !isAprilFool)
-        writeIconic(canvas, writer, page.slot, "public/images/iconics/generic.png", None, character)
+        writeIconic(canvas, writer, page.slot, pdfPath+"iconics/generic.png", None, character)
 
       // skills
       if (page.slot == "core")
@@ -595,11 +595,20 @@ object Composer extends Controller {
         var (plusLevelPlusX, plusLevelX) = 
           if (isSubSkill) (abilityMiddle - 6f, abilityMiddle + 14f)
           else if (skill.noRanks) (classSkillMiddle + 2.5f, ranksMiddle - 1.5f)
-          else (ranksMiddle + 12f, ranksMiddle + 32f)
+          else (ranksMiddle + 12f, ranksMiddle + 27f)
 
         // write level bonuses
         // println(skill.skillName+" plus half level classes: "+plusHalfLevelClasses.map(_.name).mkString(", "))
         // println(skill.skillName+" plus level classes: "+plusHalfLevelClasses.map(_.name).mkString(", "))
+
+        def shortClassName(cls: GameClass): String = {
+          val className = translate(cls.shortName).getOrElse(cls.shortName)
+          val altName = cls.altName.map(an => translate(an).getOrElse(an))
+          altName.map { an =>
+            if (className.length > an.length) an else className
+          } getOrElse(className)
+        }
+
         if (!plusLevelClasses.isEmpty || !plusHalfLevelClasses.isEmpty) {
           canvas.setFontAndSize(attrFont, attrFontSize)
           canvas.setColorFill(stdColour)
@@ -609,24 +618,25 @@ object Composer extends Controller {
           canvas.endText
 
           if (!plusHalfLevelClasses.isEmpty) {
-            plusLevelX -= 12f
-            canvas.setFontAndSize(textFont, attrFontSize)
-            canvas.beginText
-            canvas.showTextAligned(Element.ALIGN_CENTER, "(", plusLevelX, y - 2f, 0)
-            canvas.endText
-            plusLevelX += 17f
+            if (!plusLevelClasses.isEmpty) {
+              plusLevelX -= 10f
+              canvas.setFontAndSize(textFont, attrFontSize)
+              canvas.beginText
+              canvas.showTextAligned(Element.ALIGN_CENTER, "(", plusLevelX, y - 2f, 0)
+              canvas.endText
+              plusLevelX += 17f
+            }
 
             canvas.setFontAndSize(skillFont, 6f)
             canvas.setColorFill(attrColour)
             canvas.setGState(fadedGState)
             val level = translate("Level").getOrElse("Level")
             for ( cls <- plusHalfLevelClasses ) {
-              val className = translate(cls.shortName).getOrElse(cls.shortName)
               canvas.beginText
-              canvas.showTextAligned(Element.ALIGN_CENTER, className, plusLevelX, y + 2.5f, 0)
+              canvas.showTextAligned(Element.ALIGN_CENTER, shortClassName(cls), plusLevelX, y + 2.5f, 0)
               canvas.showTextAligned(Element.ALIGN_CENTER, level, plusLevelX, y - 2.5f, 0)
               canvas.endText
-              plusLevelX += 26f
+              plusLevelX += 22f
             }
 
             plusLevelX -= 2f
@@ -638,11 +648,13 @@ object Composer extends Controller {
             canvas.endText
             plusLevelX += 11f
 
-            canvas.setFontAndSize(textFont, attrFontSize)
-            canvas.beginText
-            canvas.showTextAligned(Element.ALIGN_CENTER, ")", plusLevelX, y - 2f, 0)
-            canvas.endText
-            plusLevelX += 20f
+            if (!plusLevelClasses.isEmpty) {
+              canvas.setFontAndSize(textFont, attrFontSize)
+              canvas.beginText
+              canvas.showTextAligned(Element.ALIGN_CENTER, ")", plusLevelX, y - 2f, 0)
+              canvas.endText
+              plusLevelX += 20f
+            }
           }
 
           if (!plusLevelClasses.isEmpty) {
@@ -651,9 +663,8 @@ object Composer extends Controller {
             canvas.setGState(fadedGState)
             val level = translate("Level").getOrElse("Level")
             for ( cls <- plusLevelClasses ) {
-              val className = translate(cls.shortName).getOrElse(cls.shortName)
               canvas.beginText
-              canvas.showTextAligned(Element.ALIGN_CENTER, className, plusLevelX, y + 2.5f, 0)
+              canvas.showTextAligned(Element.ALIGN_CENTER, shortClassName(cls), plusLevelX, y + 2.5f, 0)
               canvas.showTextAligned(Element.ALIGN_CENTER, level, plusLevelX, y - 2.5f, 0)
               canvas.endText
               plusLevelX += 26f
@@ -1360,7 +1371,7 @@ object Composer extends Controller {
 
 
       //  generic image
-      writeIconic(canvas, writer, page.slot, "public/images/iconics/generic.png", None, character)
+      writeIconic(canvas, writer, page.slot, pdfPath+"iconics/generic.png", None, character)
 
       writeColourOverlay(canvas, colour, pageSize)
 
