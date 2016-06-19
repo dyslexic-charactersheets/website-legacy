@@ -55,9 +55,9 @@ object GameData {
   def parsePage(json: JsObject) = Page(
     file = (json \ "file").as[String],
     page = (json \ "page").asOpt[Int].getOrElse(1),
-    slot = (json \ "slot").asOpt[String].getOrElse(""),
+    slot = (json \ "slot").asOpt[String].getOrElse("").toLowerCase,
     name = (json \ "name").asOpt[String].getOrElse(""),
-    variant = (json \ "variant").asOpt[String],
+    variant = (json \ "variant").asOpt[String].map(_.toLowerCase),
     a5 = (json \ "a5").asOpt[Boolean].getOrElse(false),
     position = (json \ "position").asOpt[Int]
   )
