@@ -1,12 +1,20 @@
-all:
-	activator stage
+stage:
+	./activator stage
 
 run:
 	killall -9 java
-	rm target/universal/stage/RUNNING_PID
+	[ ! -e target/universal/stage/RUNNING_PID ] || rm target/universal/stage/RUNNING_PID
+	mkdir -p logs
 	(target/universal/stage/bin/character-sheets-new-website > logs/application.log &)
 
+start: run
+
+stop:
+	killall -9 java
+	[ ! -e target/universal/stage/RUNNING_PID] || rm target/universal/stage/RUNNING_PID
+
 log:
+	mkdir -p logs
 	tailf logs/application.log
 
 help:
