@@ -122,8 +122,8 @@
       <div id='iconics-column'>
         <div class='well' id='iconic'>
           <input type='hidden' name='inventory-iconic' id='inventory-iconic' value='default'/>
-          <img src='/images/iconics/generic.png' id='iconic-generic' class='selected' />
-          <img src='/images/iconics/custom.png' id='iconic-custom' />
+          <img src='/iconics/generic.png' id='iconic-generic' class='selected' />
+          <img src='/iconics/custom.png' id='iconic-custom' />
           @for(iconic <- iconics) {
             <img data-src='@iconic.url' id='iconic-@iconic.id'/>
           }
@@ -133,7 +133,7 @@
         @**
         <div class='well' id='animal'>
           <input type='hidden' name='animal-iconic' id='animal-iconic' value='none'/>
-          <!--<img src='/images/iconics/custom.png' id='iconic-custom' />-->
+          <!--<img src='/iconics/custom.png' id='iconic-custom' />-->
           @for(iconic <- iconics) {
             <img data-src='@iconic.url' id='animal-iconic-@iconic.id'/>
           }
@@ -501,9 +501,9 @@
           </fieldset>
         </div>
         <div id='iconic-image-list-generic' class='image-select-set selected'>
-          <a data-id='generic'><img src='/images/iconics/generic.png'/>Generic</a>
-          <a data-id='none'><img src='/images/iconics/none.png'/>None</a>
-          <a data-id='custom'><img src='/images/iconics/custom.png'/>Upload your own</a>
+          <a data-id='generic'><img src='/iconics/generic.png'/>Generic</a>
+          <a data-id='none'><img src='/iconics/none.png'/>None</a>
+          <a data-id='custom'><img src='/iconics/custom.png'/>Upload your own</a>
         </div>
         @for(set <- iconicSets) {
           <div id='iconic-image-list-@set.id' class='image-select-set'>
@@ -540,8 +540,8 @@
           </fieldset>
         </div>
         <div id='logo-list-generic' class='image-select-set selected'>
-          <a data-id='none'><img src='/images/iconics/none.png'/>None</a>
-          <a data-id='custom'><img src='/images/iconics/custom.png'/>Upload your own</a>
+          <a data-id='none'><img src='/iconics/none.png'/>None</a>
+          <a data-id='custom'><img src='/iconics/custom.png'/>Upload your own</a>
         </div>
         @for(set <- logoSets) {
           <div id='logo-list-@set.id' class='image-select-set'>

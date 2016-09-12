@@ -22,9 +22,9 @@ case class IconicImage(set: IconicSet, fileName: String, niceName: String) {
   val path = set.filePath+"/"+fileName
   val id = set.id+"-"+slug(fileName)
   val sortableName = id
-  val largeFile = if (fileName == "") "" else IconicImage.pdfPath+"iconics/large/"+set.filePath+"/"+fileName+".png"
-  val smallFile = if (fileName == "") "" else "public/images/iconics/"+set.filePath+"/"+fileName+".png"
-  val url = if (fileName == "") "" else ("/images/iconics/"+set.filePath+"/"+fileName+".png").replaceAll(" ", "+")
+  val largeFile = if (fileName == "") "" else IconicImage.iconicsPath+"large/"+set.filePath+"/"+fileName+".png"
+  val smallFile = if (fileName == "") "" else IconicImage.iconicsPath+"small/"+set.filePath+"/"+fileName+".png"
+  val url = if (fileName == "") "" else ("/iconics/"+set.filePath+"/"+fileName+".png").replaceAll(" ", "+")
 
 
   def copyright: Option[IconicCopyright] = {
@@ -54,12 +54,13 @@ case class IconicImage(set: IconicSet, fileName: String, niceName: String) {
 case class IconicCopyright (copyright: String, url: Option[String], license: Option[String])
 
 object IconicImage {
-  val pdfPath: String = Play.current.configuration.getString("charactersheets.pdf.path").getOrElse("public/pdf/")
+  val iconicsPath: String = Play.current.configuration.getString("charactersheets.iconics.path").getOrElse("../assets/iconics")
   lazy val iconics: List[IconicImage] = {
     // val iconicsFolder = new File("public/images/iconics")
     // if (!iconicsFolder.isDirectory) Nil
     // else {
-      val iconicsList = new File(pdfPath+"iconics/iconics.txt")
+      val iconicsList = new File(iconicsPath+"/iconics.txt")
+      println("Reading iconics list: "+iconicsList.getAbsolutePath())
       val lines = scala.io.Source.fromFile(iconicsList).getLines.toList
       val iconics = lines.flatMap { line =>
         try {
@@ -136,8 +137,8 @@ case class LogoSet(filePath: String, nicePath: String) {
 case class Logo(set: LogoSet, logoPath: String, name: String) {
   lazy val fileName: Option[String] = {
     val path = set.filePath+"/"+logoPath
-    if (new File("public/images/logos/"+path+".png").exists()) Some(path+".png")
-    else if (new File("public/images/logos/"+path+".jpg").exists()) Some(path+".jpg")
+    if (new File(Logo.logosPath+path+".png").exists()) Some(path+".png")
+    else if (new File(Logo.logosPath+path+".jpg").exists()) Some(path+".jpg")
     else None
   }
   lazy val code = (set.filePath+"/"+logoPath).toLowerCase.replaceAll("[^a-z0-9]+", "-")
@@ -149,11 +150,13 @@ case class Logo(set: LogoSet, logoPath: String, name: String) {
 }
 
 object Logo {
+  val logosPath: String = Play.current.configuration.getString("charactersheets.logos.path").getOrElse("../assets/logos")
   lazy val logos: List[Logo] = {
-    val logosFolder = new File("public/images/logos")
+    val logosFolder = new File(logosPath)
     if (!logosFolder.isDirectory) Nil
     else {
-      val logosList = new File("public/images/logos/logos.txt")
+      val logosList = new File(logosPath+"logos.txt")
+      println("Reading logos list: "+logosList.getAbsolutePath())
       val lines = scala.io.Source.fromFile(logosList).getLines.toList
 
       val logos = lines.flatMap { line =>

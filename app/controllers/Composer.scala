@@ -17,7 +17,9 @@ object Composer extends Controller {
   lazy val dnd35Data = Application.dnd35Data
   lazy val testData = Application.testData
 
-  val pdfPath: String = Play.current.configuration.getString("charactersheets.pdf.path").getOrElse("public/pdf/")
+  val pdfPath: String = Play.current.configuration.getString("charactersheets.pdf.path").getOrElse("../assets/")
+  val iconicsPath: String = Play.current.configuration.getString("charactersheets.iconics.path").getOrElse("../assets/iconics")
+  val logosPath: String = Play.current.configuration.getString("charactersheets.logos.path").getOrElse("../assets/logos")
 
   def downloadPathfinder = downloadAction(pathfinderData)
   def downloadDnd35 = downloadAction(dnd35Data)
@@ -294,7 +296,7 @@ object Composer extends Controller {
 
       //  generic image
       if (!character.hasCustomIconic && !character.iconic.isDefined && !isAprilFool)
-        writeIconic(canvas, writer, page.slot, pdfPath+"iconics/generic.png", None, character)
+        writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, character)
 
       // skills
       if (page.slot == "core")
@@ -1371,7 +1373,7 @@ object Composer extends Controller {
 
 
       //  generic image
-      writeIconic(canvas, writer, page.slot, pdfPath+"iconics/generic.png", None, character)
+      writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, character)
 
       writeColourOverlay(canvas, colour, pageSize)
 

@@ -19,4 +19,6 @@ POST    /pdf/dnd35                  controllers.Composer.downloadDnd35
 
 # Map static resources from the /public folder to the /assets URL path
 GET		/images/*file				controllers.Assets.at(path="/public/images", file)
+GET		/iconics/*file              controllers.ExternalAssets.at(path="../assets/iconics/small", file)
+GET		/logos/*file				controllers.ExternalAssets.at(path="../assets/logos", file)
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
