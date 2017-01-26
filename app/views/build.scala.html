@@ -160,6 +160,7 @@
               <option value="small">Small entries</option>
               <option value="medium" selected>Normal entries</option>
               <option value="large">Large entries</option>
+              <option value="none">None</option>
           </select></p>
     
         <p><label for="inventory-style">Inventory style</label>
@@ -188,7 +189,6 @@
           <p><label for="all-knowledge"><input type="checkbox" name="all-knowledge" id="all-knowledge" /> Include all knowledge skills</label></p>
           <p class='info'>This reduces the space available for Craft, Profession and Perform skills. Bards get all knowledge skills anyway.</p>
 
-          <!--
           <p><label for="show-perform"><input type="checkbox" name="show-perform" id="show-perform" /> Perform</label>&nbsp; 
             <select name="perform-skill">
               <option value="act">(act)</option>
@@ -202,7 +202,32 @@
               <option value="sing">(sing)</option>
             </select>
           </p>
-          -->
+
+          <p><label for="show-craft"><input type="checkbox" name="show-craft" id="show-craft" /> Craft</label>&nbsp; 
+            <select name="craft-skill">
+              <option value="alchemy">(alchemy)</option>
+              <option value="armour">(armour)</option>
+              <option value="baskets">(baskets)</option>
+              <option value="books">(books)</option>
+              <option value="bows">(bows)</option>
+              <option value="calligraphy">(calligraphy)</option>
+              <option value="carpentry">(carpentry)</option>
+              <option value="cloth">(cloth)</option>
+              <option value="clothing">(clothing)</option>
+              <option value="glass">(glass)</option>
+              <option value="jewellery">(jewellery)</option>
+              <option value="leather">(leather)</option>
+              <option value="locks">(locks)</option>
+              <option value="paintings">(paintings)</option>
+              <option value="pottery">(pottery)</option>
+              <option value="sculptures">(sculptures)</option>
+              <option value="ships">(ships)</option>
+              <option value="shoes">(shoes)</option>
+              <option value="stonemasonry">(stonemasonry)</option>
+              <option value="traps">(traps)</option>
+              <option value="weapons">(weapons)</option>
+            </select>
+          </p>
 
         <h3>Additional pages</h3>
           <p><label for="include-background"><input type="checkbox" name="include-background" id="include-background" checked /> Character background</label></p>

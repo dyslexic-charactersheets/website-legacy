@@ -69,6 +69,10 @@ object CharacterData {
         println("Found performance: "+data.get("perform-skill").getOrElse("nothing"))
         data.get("perform-skill").map("Perform ("+_+")")
       } else None,
+      craftSkill = if (positive.contains("show-craft")) {
+        println("Found craft: "+data.get("craft-skill").getOrElse("nothing"))
+        data.get("craft-skill").map("Craft ("+_+")")
+      } else None,
       includeCharacterBackground = positive.contains("include-background"),
       isPathfinderSociety = gameData.isPathfinder && positive.contains("include-pathfinder-society"),
       includeLycanthrope = positive.contains("include-lycanthrope"),
@@ -150,6 +154,7 @@ case class CharacterData (
   skillsStyle: String,
   allKnowledge: Boolean,
   performSkill: Option[String],
+  craftSkill: Option[String],
   includeCharacterBackground: Boolean,
   isPathfinderSociety: Boolean,
   includeLycanthrope: Boolean,

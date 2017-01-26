@@ -143,8 +143,8 @@ case class Logo(set: LogoSet, logoPath: String, name: String) {
   }
   lazy val code = (set.filePath+"/"+logoPath).toLowerCase.replaceAll("[^a-z0-9]+", "-")
   
-  def url = fileName.map("/images/logos/"+_)
-  def filePath = fileName.map("public/images/logos/"+_)
+  def url = fileName.map("/logos/"+_)
+  def filePath = fileName.map(Logo.logosPath+_)
   def ifExists: Option[Logo] = fileName.map(f => this)
   val sortableName = code
 }

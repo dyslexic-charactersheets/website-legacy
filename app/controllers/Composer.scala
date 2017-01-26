@@ -430,12 +430,13 @@ object Composer extends Controller {
       case _ =>
         val knowledgeSkills = if (character.map(_.allKnowledge).getOrElse(false)) gameData.knowledgeSkills else Nil
         val performSkill = character.map(_.performSkill.toList).getOrElse(Nil)
+        val craftSkill = character.map(_.craftSkill.toList).getOrElse(Nil)
         // println("Core skills: "+coreSkills.mkString(", "))
         // println("Class skills: "+classSkills.mkString(", "))
         if (knowledgeSkills != Nil) println("Knowledge skills: "+knowledgeSkills.mkString(", "))
         if (bonusSkills != Nil) println("Bonus skills: "+bonusSkills.mkString(", "))
 
-        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkill ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkill ::: craftSkill ::: bonusSkills).distinct.flatMap(gameData.getSkill)
     }
 
     if (skillsStyle == "consolidated" && !gameData.consolidatedSkills.isEmpty) {
@@ -518,8 +519,9 @@ object Composer extends Controller {
     def writeSkillLine(pos: Int, skill: Skill, isSubSkill: Boolean) {
       val y = firstLine + pos * lineIncrement
       val nameLeft = if (isSubSkill) skillNameLeft + skillNameIndent else skillNameLeft
+      val skillColour = if (skill.noRanks || isSubSkill) fillColour else stdColour
       canvas.setFontAndSize(skillFont, skillFontSize)
-      canvas.setColorFill(stdColour)
+      canvas.setColorFill(skillColour)
       canvas.setGState(defaultGstate)
       canvas.beginText
       canvas.showTextAligned(Element.ALIGN_LEFT, skill.skillName, nameLeft, y, 0)
@@ -590,8 +592,11 @@ object Composer extends Controller {
           }
         }
 
-        for ( char <- character.toList; cls <- char.classes; if cls.plusHalfLevel.contains(skill.name) ) {
-          plusHalfLevelClasses = cls :: plusHalfLevelClasses
+        for ( char <- character.toList; cls <- char.classes) {
+          if (cls.plusLevel.contains(skill.name))
+            plusLevelClasses = cls :: plusLevelClasses
+          if (cls.plusHalfLevel.contains(skill.name))
+            plusHalfLevelClasses = cls :: plusHalfLevelClasses
         }
 
         var (plusLevelPlusX, plusLevelX) = 
@@ -1070,7 +1075,17 @@ object Composer extends Controller {
             // initiative marker
             img.scaleToFit(36f, 36f)
             img.setRotationDegrees(0)
-            img.setAbsolutePosition(410.5f - (img.getScaledWidth() / 2), 716f - (img.getScaledHeight() / 2))
+            img.setAbsolutePosition(410.5f - (img.getScaledWidth() / 2), 720f - (img.getScaledHeight() / 2))
+            canvas.addImage(img)
+
+            // hex token
+            img.scaleToFit(55f, 55f)
+            img.setRotationDegrees(0)
+            img.setAbsolutePosition(518 - (img.getScaledWidth() / 2), 585 - (img.getScaledHeight() / 2))
+            canvas.addImage(img)
+
+            img.setRotationDegrees(180)
+            img.setAbsolutePosition(455 - (img.getScaledWidth() / 2), 585 - (img.getScaledHeight() / 2))
             canvas.addImage(img)
 
             // stat tracker
@@ -1312,7 +1327,7 @@ object Composer extends Controller {
         }
       )
       println("Non-custom logo: "+fileName)
-      "public/images/logos/"+fileName
+      logosPath+fileName
     }
   }
 
@@ -1324,7 +1339,7 @@ object Composer extends Controller {
         case _ => ""
       }
     )
-    "public/images/logos/"+fileName
+    logosPath+fileName
   }
 
 
@@ -1457,11 +1472,12 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
 
     if (slotNames.contains("spellbook")) {
       val spellbookPage = character.spellbookSize match {
-        case "small" => PageSlot("spellbook", Some("small"))
-        case "medium" => PageSlot("spellbook", None)
-        case "large" => PageSlot("spellbook", Some("large"))
+        case "small" => PageSlot("spellbook", Some("small")) :: Nil
+        case "medium" => PageSlot("spellbook", None) :: Nil
+        case "large" => PageSlot("spellbook", Some("large")) :: Nil
+        case "none" => Nil
       }
-      pages = pages.filter(_.page != "spellbook") ::: (spellbookPage :: Nil)
+      pages = pages.filter(_.page != "spellbook") ::: spellbookPage
     }
     if (character.inventoryStyle != "auto") {
       val page = PageSlot("inventory", Some(character.inventoryStyle))

@@ -104,6 +104,7 @@ object GameData {
     variants = (json \ "variants").asOpt[List[JsObject]].getOrElse(Nil).map(parseVariant),
     axes = (json \ "axes").asOpt[List[List[String]]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
+    plusLevel = (json \ "plusLevel").asOpt[List[String]].getOrElse(Nil),
     plusHalfLevel = (json \ "plusHalfLevel").asOpt[List[String]].getOrElse(Nil)
   )
 
@@ -147,7 +148,7 @@ case class GameData (
 
   def getSkill(name: String): Option[Skill] = {
     var skill = skills.filter(_.name == name).headOption
-    if (skill == None && name.startsWith("Perform")) {
+    if (skill == None && (name.startsWith("Perform") || name.startsWith("Craft"))) {
       println("Making performance: "+name)
       skill = Some(Skill.makePerform(name))
     }
@@ -209,6 +210,7 @@ trait GameClass {
   def pages: List[String]
   def code = name.replaceAll("[^a-zA-Z]+", "-")
   def skills: List[String]
+  def plusLevel: List[String]
   def plusHalfLevel: List[String]
 }
 
@@ -217,6 +219,7 @@ case class BaseClass (
   altName: Option[String],
   pages: List[String],
   skills: List[String] = Nil,
+  plusLevel: List[String] = Nil,
   plusHalfLevel: List[String] = Nil,
   variants: List[VariantClass] = Nil,
   axes: List[List[String]] = Nil
@@ -236,10 +239,12 @@ case class VariantClass (
   axes: List[String] = Nil,
   skills: List[String] = Nil,
   notSkills: List[String] = Nil,
+  overridePlusLevel: Option[List[String]] = None,
   overridePlusHalfLevel: Option[List[String]] = None
 ) extends GameClass {
+  def plusLevel = overridePlusLevel.getOrElse(Nil)
   def plusHalfLevel = overridePlusHalfLevel.getOrElse(Nil)
-  def mergeInto(base: BaseClass) = new BaseClass(name, Some(base.name), base.pages ::: pages, base.skills.filterNot(notSkills.toSet) ::: skills, overridePlusHalfLevel.getOrElse(base.plusHalfLevel))
+  def mergeInto(base: BaseClass) = new BaseClass(name, Some(base.name), base.pages ::: pages, base.skills.filterNot(notSkills.toSet) ::: skills, overridePlusLevel.getOrElse(base.plusLevel), overridePlusHalfLevel.getOrElse(base.plusHalfLevel))
 }
 
 case class LanguageInfo (
