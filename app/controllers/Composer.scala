@@ -431,12 +431,13 @@ object Composer extends Controller {
         val knowledgeSkills = if (character.map(_.allKnowledge).getOrElse(false)) gameData.knowledgeSkills else Nil
         val performSkill = character.map(_.performSkill.toList).getOrElse(Nil)
         val craftSkill = character.map(_.craftSkill.toList).getOrElse(Nil)
+        val professionSkill = character.map(_.professionSkill.toList).getOrElse(Nil)
         // println("Core skills: "+coreSkills.mkString(", "))
         // println("Class skills: "+classSkills.mkString(", "))
         if (knowledgeSkills != Nil) println("Knowledge skills: "+knowledgeSkills.mkString(", "))
         if (bonusSkills != Nil) println("Bonus skills: "+bonusSkills.mkString(", "))
 
-        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkill ::: craftSkill ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkill ::: craftSkill ::: professionSkill ::: bonusSkills).distinct.flatMap(gameData.getSkill)
     }
 
     if (skillsStyle == "consolidated" && !gameData.consolidatedSkills.isEmpty) {

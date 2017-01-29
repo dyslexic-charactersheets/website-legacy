@@ -148,8 +148,8 @@ case class GameData (
 
   def getSkill(name: String): Option[Skill] = {
     var skill = skills.filter(_.name == name).headOption
-    if (skill == None && (name.startsWith("Perform") || name.startsWith("Craft"))) {
-      println("Making performance: "+name)
+    if (skill == None && (name.startsWith("Perform (") || name.startsWith("Craft (") || name.startsWith("Profession ("))) {
+      println("Making skill: "+name)
       skill = Some(Skill.makePerform(name))
     }
     if (skill == None) println(" * Unknown skill: "+name+"!")

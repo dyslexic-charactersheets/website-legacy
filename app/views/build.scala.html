@@ -205,6 +205,7 @@
 
           <p><label for="show-craft"><input type="checkbox" name="show-craft" id="show-craft" /> Craft</label>&nbsp; 
             <select name="craft-skill">
+            @if(gameData.isPathfinder) {
               <option value="alchemy">(alchemy)</option>
               <option value="armour">(armour)</option>
               <option value="baskets">(baskets)</option>
@@ -226,8 +227,72 @@
               <option value="stonemasonry">(stonemasonry)</option>
               <option value="traps">(traps)</option>
               <option value="weapons">(weapons)</option>
+            }
+            @if(gameData.isDnd35) {
+              <option value='alchemy'>(alchemy)</option>
+              <option value='armourer'>(armourer)</option>
+              <option value='blacksmithing'>(blacksmithing)</option>
+              <option value='bookbinding'>(bookbinding)</option>
+              <option value='bowmaking'>(bowmaking)</option>
+              <option value='brewery'>(brewery)</option>
+              <option value='calligraphy'>(calligraphy)</option>
+              <option value='carpentry'>(carpentry)</option>
+              <option value='carver'>(carver)</option>
+              <option value='chemist'>(chemist)</option>
+              <option value='founder'>(founder)</option>
+              <option value='glassblowing'>(glassblowing)</option>
+              <option value='cooking'>(cooking)</option>
+              <option value='jeweler'>(jeweler)</option>
+              <option value='leatherworking'>(leatherworking)</option>
+              <option value='masonry'>(masonry)</option>
+              <option value='mechanic'>(mechanic)</option>
+              <option value='painting'>(painting)</option>
+              <option value='pottery'>(pottery)</option>
+              <option value='sculpting'>(sculpting)</option>
+              <option value='stone masonry'>(stone masonry)</option>
+              <option value='tailor'>(tailor)</option>
+              <option value='weaving'>(weaving)</option>
+              <option value='winemaking'>(winemaking)</option>
+            }
             </select>
           </p>
+
+          <p><label for="show-profession"><input type="checkbox" name="show-profession" id="show-profession" /> Profession</label>&nbsp; 
+            <select name="profession-skill">
+              <option value='architect'>(architect)</option>
+              <option value='baker'>(baker)</option>
+              <option value='barrister'>(barrister)</option>
+              <option value='brewer'>(brewer)</option>
+              <option value='butcher'>(butcher)</option>
+              <option value='clerk'>(clerk)</option>
+              <option value='cook'>(cook)</option>
+              <option value='courtesan'>(courtesan)</option>
+              <option value='driver'>(driver)</option>
+              <option value='engineer'>(engineer)</option>
+              <option value='farmer'>(farmer)</option>
+              <option value='fisherman'>(fisherman)</option>
+              <option value='gambler'>(gambler)</option>
+              <option value='gardener'>(gardener)</option>
+              <option value='herbalist'>(herbalist)</option>
+              <option value='innkeeper'>(innkeeper)</option>
+              <option value='librarian'>(librarian)</option>
+              <option value='merchant'>(merchant)</option>
+              <option value='midwife'>(midwife)</option>
+              <option value='miller'>(miller)</option>
+              <option value='miner'>(miner)</option>
+              <option value='porter'>(porter)</option>
+              <option value='sailor'>(sailor)</option>
+              <option value='scribe'>(scribe)</option>
+              <option value='shepherd'>(shepherd)</option>
+              <option value='stable master'>(stable master)</option>
+              <option value='soldier'>(soldier)</option>
+              <option value='tanner'>(tanner)</option>
+              <option value='trapper'>(trapper)</option>
+              <option value='woodcutter'>(woodcutter)</option>
+            </select>
+          </p>
+
+          <p class='info'>There may be other Craft, Perform and Profession skills, depending on setting and rules. Check with your @if(gameData.isDnd){ DM }else{ GM }</p>
 
         <h3>Additional pages</h3>
           <p><label for="include-background"><input type="checkbox" name="include-background" id="include-background" checked /> Character background</label></p>
