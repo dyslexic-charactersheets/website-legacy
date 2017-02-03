@@ -12,6 +12,7 @@ object GameData {
 
   def load(game: String): GameData = {
     val file = new File(dataPath+game+".json")
+    println("Loading game data file: "+file.getAbsolutePath());
     val data = Source.fromFile(file)("UTF-8").getLines().mkString
     val json = Json.parse(data)
     parse(json)
