@@ -268,7 +268,8 @@ object Composer extends Controller {
     val pages = new CharacterInterpretation(gameData, character).pages
 
     val colour = character.colour
-    for (page <- pages; pageFile <- locatePage(folders, page)) {
+    for (page <- pages; if !isExcludedPage(page); pageFile <- locatePage(folders, page)) {
+
       //val pageFile = new File(folder.getPath+"/"+page.file)
       val fis = new FileInputStream(pageFile)
       val reader = new PdfReader(fis)
@@ -305,6 +306,12 @@ object Composer extends Controller {
         writeSkills(canvas, writer, page, gameData, Some(character.makeEidolon(gameData)), language)
       if (page.slot == "animalcompanion")
         writeSkills(canvas, writer, page, gameData, Some(character.makeAnimalCompanion(gameData)), language)
+
+      // special composite pages
+      if (page.slot == "fighter" && gameData.isPathfinder) {
+        val mathsPage = pages.filter(_.slot == "fighter-maths").head
+        overlayPage(canvas, writer, folders, mathsPage.file)
+      }
 
       // variant rules
       if (!character.variantRules.isEmpty) {
@@ -343,6 +350,13 @@ object Composer extends Controller {
       }
 
       fis.close
+    }
+  }
+
+  def isExcludedPage(page: Page): Boolean = {
+    page.slot match {
+      case "fighter-maths" => true
+      case _ => false
     }
   }
 
@@ -556,6 +570,7 @@ object Composer extends Controller {
         }
 
         val ability = if (skill.ability.length > 0) translate(skill.ability).getOrElse(skill.ability) else ""
+        println("Translated ability: "+skill.ability+" = "+ability)
         canvas.setFontAndSize(attrFont, attrFontSize)
         canvas.setColorFill(attrColour)
         canvas.setGState(fadedGState)
