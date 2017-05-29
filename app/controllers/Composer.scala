@@ -70,7 +70,8 @@ object Composer extends Controller {
         if (character.hasCustomLogo) println("Custom logo found")
 
         val pdf = composePDF(character, gameData, sourceFolders, language)
-        val filename = character.classes.toList.map(_.name).mkString(", ")+".pdf"
+        val classes = character.classes
+        val filename = if (classes.isEmpty) "character.pdf" else classes.toList.map(_.name).mkString(", ")+".pdf"
 
         Ok(pdf).as("application/pdf").withHeaders(
           "Content-disposition" -> ("attachment; filename=\""+filename+"\"")
@@ -79,7 +80,7 @@ object Composer extends Controller {
       case Some("party") =>
         val characters = CharacterData.parseParty(data, gameData, customLogo)
         val pdf = composeParty(characters, gameData, sourceFolders, language)
-        val filename = characters.map(_.classes.toList.map(_.name).mkString("-")).mkString(", ")+".pdf"
+        val filename = if (characters.flatMap(_.classes).isEmpty) "characters.pdf" else characters.map(_.classes.toList.map(_.name).mkString("-")).mkString(", ")+".pdf"
 
         Ok(pdf).as("application/pdf").withHeaders(
           "Content-disposition" -> ("attachment; filename=\""+filename+"\"")
@@ -940,6 +941,7 @@ object Composer extends Controller {
       println("Pathfinder skill points for page variant: "+page.slot+" / "+page.variant)
       val isBarbarian = page.variant == Some("barbarian")
       val isRanger = page.variant == Some("ranger")
+      var isDruidWorldWalker = page.variant == Some("worldwalker")
 
       val firstLine = 603f
       val lineIncrement = -13.51f
@@ -954,21 +956,25 @@ object Composer extends Controller {
       val abilityMiddle = 
         if (isBarbarian) 395f 
         else if (isRanger) 388f
+        else if (isDruidWorldWalker) 390f
         else 410f
       val abilityOffset = -1f
 
       val ranksMiddle = 
         if (isBarbarian) 448f
         else if (isRanger) 443f
+        else if (isDruidWorldWalker) 443f
         else 465f
 
       val useUntrainedMiddle = 
         if (isBarbarian) 341f
         else if (isRanger) 335f
+        else if (isDruidWorldWalker) 336f
         else 356f
       val classSkillMiddle = 
         if (isBarbarian) 419f
         else if (isRanger) 413f
+        else if (isDruidWorldWalker) 414f
         else 435f
       val classSkillIncrement = 10f
 
