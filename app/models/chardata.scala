@@ -187,6 +187,14 @@ case class CharacterData (
     )
   }
 
+  def makePhantom(game: GameData): CharacterData = {
+    val phantomClass = game.classByName("Phantom")
+
+    this.copy(
+      classes = phantomClass.toList
+    )
+  }
+
   def makeAnimalCompanion(game: GameData): CharacterData = {
     val animalClass = BaseClass("Animal Companion", Some("Animal"), Nil, game.animalSkills)
     this.copy(

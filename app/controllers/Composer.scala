@@ -305,6 +305,8 @@ object Composer extends Controller {
         writeSkills(canvas, writer, page, gameData, Some(character), language)
       if (page.slot == "eidolon")
         writeSkills(canvas, writer, page, gameData, Some(character.makeEidolon(gameData)), language)
+      if (page.slot == "spiritualist-phantom")
+        writeSkills(canvas, writer, page, gameData, Some(character.makePhantom(gameData)), language)
       if (page.slot == "animalcompanion")
         writeSkills(canvas, writer, page, gameData, Some(character.makeAnimalCompanion(gameData)), language)
 
@@ -442,6 +444,13 @@ object Composer extends Controller {
         classSkills = eidolonSkills
         (gameData.coreSkills ::: eidolonSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
 
+      case "spiritualist-phantom" =>
+        val phantomClass = gameData.classByName("Phantom")
+        val phantomSkills: List[String] = phantomClass.toList.flatMap(_.skills)
+        println("Phantom skills: "+phantomSkills.mkString(", "))
+        classSkills = phantomSkills
+        (gameData.coreSkills ::: phantomSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+
       case _ =>
         val knowledgeSkills = if (character.map(_.allKnowledge).getOrElse(false)) gameData.knowledgeSkills else Nil
         val performSkill = character.map(_.performSkill.toList).getOrElse(Nil)
@@ -564,7 +573,7 @@ object Composer extends Controller {
         canvas.stroke()
       }
 
-      val isCorePage = page.slot == "core" || page.slot == "eidolon"
+      val isCorePage = page.slot == "core" || page.slot == "eidolon" || page.slot == "spiritualist-phantom"
       if (isCorePage) {
         if (skill.useUntrained) {
           writeCheckbox(useUntrainedMiddle, y, true)
@@ -906,7 +915,7 @@ object Composer extends Controller {
       SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
         skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
 
-    case "eidolon" =>
+    case "eidolon" | "spiritualist-phantom" =>
       val firstLine = 616f
       val lineIncrement = -13.51f
       val lineBottomOffset = -4.5f
@@ -1288,7 +1297,7 @@ object Composer extends Controller {
       }
     }
 
-    if (slot == "core" || slot == "eidolon") {
+    if (slot == "core" || slot == "eidolon" || slot == "spiritualist-phantom") {
       canvas.setGState(defaultGstate)
       val imgLayer = new PdfLayer("Logo image", writer)
       canvas.beginLayer(imgLayer)
@@ -1405,6 +1414,8 @@ object Composer extends Controller {
         writeSkills(canvas, writer, page, gameData, Some(character), language)
       if (page.slot == "eidolon")
         writeSkills(canvas, writer, page, gameData, Some(character.makeEidolon(gameData)), language)
+      if (page.slot == "spiritualist-phantom")
+        writeSkills(canvas, writer, page, gameData, Some(character.makePhantom(gameData)), language)
       if (page.slot == "animalcompanion")
         writeSkills(canvas, writer, page, gameData, Some(character.makeAnimalCompanion(gameData)), language)
 
