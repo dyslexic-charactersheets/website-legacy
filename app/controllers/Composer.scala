@@ -1264,7 +1264,7 @@ object Composer extends Controller {
   val encoding = BaseFont.IDENTITY_H
   def textFont = BaseFont.createFont("public/fonts/Roboto-Condensed.ttf", encoding, true)
   def textFontBold = BaseFont.createFont("public/fonts/Roboto-BoldCondensed.ttf", encoding, true)
-  def altFont = BaseFont.createFont("public/fonts/Merriweather-Black.ttf", encoding, true)
+  def altFont = BaseFont.createFont("public/fonts/Merriweather-Bold.ttf", encoding, true)
   def barbarianFont = BaseFont.createFont("public/fonts/Amatic-Bold.ttf", encoding, true)
   def barbarianFont2 = BaseFont.createFont("public/fonts/dirty-duo.ttf", encoding, true)
 
