@@ -642,6 +642,18 @@ object Composer extends Controller {
           } getOrElse(className)
         }
 
+        def plusShortClassName(cls: GameClass): (String, String) = {
+          val untrans = cls.shortName+" Level"
+          val trans: String = translate(untrans).getOrElse(untrans)
+          val words = trans.split(" ")
+          val rwords = words.length / 2
+
+          val above = words.take(words.length - rwords).toList.mkString(" ")
+          val below = words.takeRight(rwords).toList.mkString(" ")
+          println("Class level: ["+above+"] ["+below+"]")
+          (above, below)
+        }
+
         if (!plusLevelClasses.isEmpty || !plusHalfLevelClasses.isEmpty) {
           canvas.setFontAndSize(attrFont, attrFontSize)
           canvas.setColorFill(stdColour)
@@ -663,11 +675,12 @@ object Composer extends Controller {
             canvas.setFontAndSize(skillFont, 6f)
             canvas.setColorFill(attrColour)
             canvas.setGState(fadedGState)
-            val level = translate("Level").getOrElse("Level")
             for ( cls <- plusHalfLevelClasses ) {
+              val (above, below) = plusShortClassName(cls)
+
               canvas.beginText
-              canvas.showTextAligned(Element.ALIGN_CENTER, shortClassName(cls), plusLevelX, y + 2.5f, 0)
-              canvas.showTextAligned(Element.ALIGN_CENTER, level, plusLevelX, y - 2.5f, 0)
+              canvas.showTextAligned(Element.ALIGN_CENTER, above, plusLevelX, y + 2.5f, 0)
+              canvas.showTextAligned(Element.ALIGN_CENTER, below, plusLevelX, y - 2.5f, 0)
               canvas.endText
               plusLevelX += 22f
             }
@@ -696,9 +709,11 @@ object Composer extends Controller {
             canvas.setGState(fadedGState)
             val level = translate("Level").getOrElse("Level")
             for ( cls <- plusLevelClasses ) {
+              val (above, below) = plusShortClassName(cls)
+
               canvas.beginText
-              canvas.showTextAligned(Element.ALIGN_CENTER, shortClassName(cls), plusLevelX, y + 2.5f, 0)
-              canvas.showTextAligned(Element.ALIGN_CENTER, level, plusLevelX, y - 2.5f, 0)
+              canvas.showTextAligned(Element.ALIGN_CENTER, above, plusLevelX, y + 2.5f, 0)
+              canvas.showTextAligned(Element.ALIGN_CENTER, below, plusLevelX, y - 2.5f, 0)
               canvas.endText
               plusLevelX += 26f
             }
