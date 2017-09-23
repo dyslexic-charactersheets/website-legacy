@@ -609,6 +609,7 @@ object Composer extends Controller {
         // work out if the skill gets level bonuses
         var plusHalfLevelClasses: List[GameClass] = Nil
         var plusLevelClasses: List[GameClass] = Nil
+        var skillBonus: Int = 0
 
         if (isSubSkill || skill.noRanks) {
           if (skill.plusLevel) {
@@ -623,6 +624,7 @@ object Composer extends Controller {
             plusLevelClasses = cls :: plusLevelClasses
           if (cls.plusHalfLevel.contains(skill.name))
             plusHalfLevelClasses = cls :: plusHalfLevelClasses
+          skillBonus += cls.skillBonus.get(skill.name).getOrElse(0)
         }
 
         var (plusLevelPlusX, plusLevelX) = 
@@ -654,12 +656,17 @@ object Composer extends Controller {
           (above, below)
         }
 
-        if (!plusLevelClasses.isEmpty || !plusHalfLevelClasses.isEmpty) {
+        if (!plusLevelClasses.isEmpty || !plusHalfLevelClasses.isEmpty || skillBonus > 0) {
           canvas.setFontAndSize(attrFont, attrFontSize)
           canvas.setColorFill(stdColour)
           canvas.setGState(defaultGstate)
           canvas.beginText
-          canvas.showTextAligned(Element.ALIGN_CENTER, "+", plusLevelPlusX, y - 2f, 0)
+          if (skillBonus > 0) {
+            canvas.showTextAligned(Element.ALIGN_LEFT, "+ "+skillBonus+" +", plusLevelPlusX - 3, y - 2f, 0)
+            plusLevelX += 20
+          } else {
+            canvas.showTextAligned(Element.ALIGN_CENTER, "+", plusLevelPlusX, y - 2f, 0)
+          }
           canvas.endText
 
           if (!plusHalfLevelClasses.isEmpty) {

@@ -105,6 +105,7 @@ object GameData {
     variants = (json \ "variants").asOpt[List[JsObject]].getOrElse(Nil).map(parseVariant),
     axes = (json \ "axes").asOpt[List[List[String]]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
+    skillBonus = (json \ "skillBonus").asOpt[Map[String, Int]].getOrElse(Map.empty),
     plusLevel = (json \ "plusLevel").asOpt[List[String]].getOrElse(Nil),
     plusHalfLevel = (json \ "plusHalfLevel").asOpt[List[String]].getOrElse(Nil)
   )
@@ -115,6 +116,8 @@ object GameData {
     pages = (json \ "pages").as[List[String]],
     axes = (json \ "axes").asOpt[List[String]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
+    skillBonus = (json \ "skillBonus").asOpt[Map[String, Int]].getOrElse(Map.empty),
+    overridePlusLevel = (json \ "plusLevel").asOpt[List[String]],
     overridePlusHalfLevel = (json \ "plusHalfLevel").asOpt[List[String]],
     notSkills = (json \ "notSkills").asOpt[List[String]].getOrElse(Nil)
   )
@@ -211,6 +214,7 @@ trait GameClass {
   def pages: List[String]
   def code = name.replaceAll("[^a-zA-Z]+", "-")
   def skills: List[String]
+  def skillBonus: Map[String, Int]
   def plusLevel: List[String]
   def plusHalfLevel: List[String]
 }
@@ -220,6 +224,7 @@ case class BaseClass (
   altName: Option[String],
   pages: List[String],
   skills: List[String] = Nil,
+  skillBonus: Map[String, Int] = Map.empty,
   plusLevel: List[String] = Nil,
   plusHalfLevel: List[String] = Nil,
   variants: List[VariantClass] = Nil,
@@ -240,12 +245,19 @@ case class VariantClass (
   axes: List[String] = Nil,
   skills: List[String] = Nil,
   notSkills: List[String] = Nil,
+  skillBonus: Map[String, Int] = Map.empty,
   overridePlusLevel: Option[List[String]] = None,
   overridePlusHalfLevel: Option[List[String]] = None
 ) extends GameClass {
   def plusLevel = overridePlusLevel.getOrElse(Nil)
   def plusHalfLevel = overridePlusHalfLevel.getOrElse(Nil)
-  def mergeInto(base: BaseClass) = new BaseClass(name, Some(base.name), base.pages ::: pages, base.skills.filterNot(notSkills.toSet) ::: skills, overridePlusLevel.getOrElse(base.plusLevel), overridePlusHalfLevel.getOrElse(base.plusHalfLevel))
+  def mergeInto(base: BaseClass) = new BaseClass(name, Some(base.name), base.pages ::: pages, 
+    base.skills.filterNot(notSkills.toSet) ::: skills, mergeSkillBonus(skillBonus, base.skillBonus),
+    overridePlusLevel.getOrElse(base.plusLevel), overridePlusHalfLevel.getOrElse(base.plusHalfLevel)
+    )
+  def mergeSkillBonus(left: Map[String, Int], right: Map[String, Int]): Map[String, Int] = {
+    (left.keySet ++ right.keySet).map {i=> (i, left.getOrElse(i,0) + right.getOrElse(i,0))}.toMap
+  }
 }
 
 case class LanguageInfo (
