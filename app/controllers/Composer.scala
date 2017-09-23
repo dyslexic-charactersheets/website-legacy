@@ -348,7 +348,7 @@ object Composer extends Controller {
         writeIconic(canvas, writer, page.slot, aprilFoolIconic.largeFile, None, character)
 
       //  watermark
-      if (character.watermark != "") {
+      if (character.watermark != "" && page.slot != "mini") {
         writeWatermark(canvas, writer, character.watermark, colour, pageSize)
       }
 
