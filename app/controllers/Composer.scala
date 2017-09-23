@@ -580,7 +580,6 @@ object Composer extends Controller {
         }
 
         val ability = if (skill.ability.length > 0) translate(skill.ability).getOrElse(skill.ability) else ""
-        println("Translated ability: "+skill.ability+" = "+ability)
         canvas.setFontAndSize(attrFont, attrFontSize)
         canvas.setColorFill(attrColour)
         canvas.setGState(fadedGState)
@@ -632,10 +631,6 @@ object Composer extends Controller {
           else if (skill.noRanks) (classSkillMiddle + 2.5f, ranksMiddle - 1.5f)
           else (ranksMiddle + 12f, ranksMiddle + 27f)
 
-        // write level bonuses
-        // println(skill.skillName+" plus half level classes: "+plusHalfLevelClasses.map(_.name).mkString(", "))
-        // println(skill.skillName+" plus level classes: "+plusHalfLevelClasses.map(_.name).mkString(", "))
-
         def shortClassName(cls: GameClass): String = {
           val className = translate(cls.shortName).getOrElse(cls.shortName)
           val altName = cls.altName.map(an => translate(an).getOrElse(an))
@@ -652,7 +647,6 @@ object Composer extends Controller {
 
           val above = words.take(words.length - rwords).toList.mkString(" ")
           val below = words.takeRight(rwords).toList.mkString(" ")
-          println("Class level: ["+above+"] ["+below+"]")
           (above, below)
         }
 
