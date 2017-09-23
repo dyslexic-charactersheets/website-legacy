@@ -1,5 +1,5 @@
 stage:
-	./sbt stage
+	sbt stage
 
 run:
 	killall -9 java
