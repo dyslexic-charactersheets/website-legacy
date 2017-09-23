@@ -1,5 +1,5 @@
 stage:
-	./activator stage
+	./sbt stage
 
 run:
 	killall -9 java
