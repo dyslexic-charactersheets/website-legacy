@@ -79,8 +79,8 @@ object Application extends Controller {
 
         val mail = new SimpleEmail()
         mail.setHostName("localhost")
-        mail.addTo("marcus@basingstokeanimesociety.com")
-        mail.setFrom("charactersheets@minotaur.cc")
+        mail.addTo("marcus@dyslexic-charactersheets.com")
+        mail.setFrom("noreply@dyslexic-charactersheets.com")
         mail.setSubject("Charactersheets: Message from "+author)
         if (email != "") {
           mail.addReplyTo(email)

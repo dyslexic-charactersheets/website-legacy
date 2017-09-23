@@ -72,6 +72,19 @@ button, .button, input[type=button], input[type=submit] {
     &:after { top: 50%; }
   }
   &:visited { color: white; }
+
+  &.messageme {
+    .gradient(#d0c880, #f0e8b0, #d0c880);
+    border-bottom-color: #d0c880;
+    border-top-color: #f0e8b0;
+    color: #348;
+  }
+
+  &.facebook {
+    .gradient(#4267b2, #29487d, #4267b2);
+    border-bottom-color: #29487d;
+    border-top-color: #4267b2;
+  }
 }
 
 .dl {
@@ -233,6 +246,15 @@ dl {
   }
 }
 
+.patreon-link {
+  display: block;
+  margin-bottom: 10px;
+  width: 100px;
+  height: 22px;
+  background: url(/assets/images/patreon-button.png);
+  background-repeat: no-repeat;
+}
+
 aside.linkbar {
   position: fixed; z-index: 2;
   top: 0px; right: 0px; height: 31px; width: 550px;
@@ -242,14 +264,10 @@ aside.linkbar {
   background: rgba(110, 120, 100, 0.5);
   .drop-shadow(0px, 5px, 15px, 0.6);
 
-  #patreon-link {
+  .patreon-link {
     position: absolute;
     top: 5px;
     left: 12px;
-    width: 100px;
-    height: 100px;
-    background: url(/assets/images/patreon-button.png);
-    background-repeat: no-repeat;
   }
 
   .addthis_toolbox { position: absolute; z-index: 3; top: 5px; left: 210px; width: 390px; }
