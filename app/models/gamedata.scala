@@ -152,9 +152,22 @@ case class GameData (
 
   def getSkill(name: String): Option[Skill] = {
     var skill = skills.filter(_.name == name).headOption
-    if (skill == None && (name.startsWith("Perform (") || name.startsWith("Craft (") || name.startsWith("Profession ("))) {
-      println("Making skill: "+name)
+
+    if (skill == None && name.startsWith("Perform (")) {
+      println("Making perform skill: "+name)
       skill = Some(Skill.makePerform(name))
+    }
+    if (skill == None && name.startsWith("Craft (")) {
+      println("Making craft skill: "+name)
+      skill = Some(Skill.makeCraft(name))
+    }
+    if (skill == None && name.startsWith("Profession (")) {
+      println("Making profession skill: "+name)
+      skill = Some(Skill.makeProfession(name))
+    }
+    if (skill == None && name.startsWith("Knowledge (")) {
+      println("Making knowledge skill: "+name)
+      skill = Some(Skill.makeKnowledge(name))
     }
     if (skill == None) println(" * Unknown skill: "+name+"!")
     skill
@@ -290,7 +303,12 @@ case class Skill (
 }
 
 object Skill {
-  def makePerform(name: String): Skill = Skill(name, Some(name), "CHA",
+  def makePerform(name: String): Skill = makeBlank(name).copy(ability = "CHA")
+  def makeProfession(name: String): Skill = makeBlank(name).copy(ability = "WIS", useUntrained = false)
+  def makeCraft(name: String): Skill = makeBlank(name).copy(ability = "INT")
+  def makeKnowledge(name: String): Skill = makeBlank(name).copy(ability = "INT", useUntrained = false)
+
+  private def makeBlank(name: String) = Skill(name, Some(name), "",
     useUntrained = true,
     acp = false,
     subSkillOf = None,
