@@ -11,10 +11,12 @@ POST    /message                    controllers.Application.leaveMessagePost
 
 GET     /build/pathfinder           controllers.Application.buildPathfinder
 GET     /build/dnd35                controllers.Application.buildDnd35
+GET     /build/starfinder           controllers.Application.buildStarfinder
 GET     /build/test                 controllers.Application.buildTest
 
 POST    /pdf/pathfinder             controllers.Composer.downloadPathfinder
 POST    /pdf/dnd35                  controllers.Composer.downloadDnd35
+POST    /pdf/starfinder             controllers.Composer.downloadStarfinder
 
 
 # Map static resources from the /public folder to the /assets URL path

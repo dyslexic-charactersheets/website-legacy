@@ -35,13 +35,21 @@
       
       <div id='start-options'>
         <a id='start-single'>
-          <img src='@routes.Assets.at("/public/images", if (isAprilFool) "april-fool/single.png" else "single.png")'/>
+          <img src='@routes.Assets.at("/public/images", if (gameData.isStarfinder) "starfinder-single.png" else "single.png")'/>
           One character
-        </a><a id='start-party'>
-          <img src='@routes.Assets.at("/public/images", if (isAprilFool) "april-fool/party.png" else "party.png")'/>
-          A Whole party
-        </a><a id='start-gm'>
-          <img src='@routes.Assets.at("/public/images", if (isAprilFool) "april-fool/gm.png" else "gm.png")'/>
+        </a>
+        <a id='start-party'>
+          <img src='@routes.Assets.at("/public/images", if (gameData.isStarfinder) "starfinder-party.png" else "party.png")'/>
+          A whole party
+        </a>
+        @if(gameData.isStarfinder) {
+          <a id='start-ship'>
+            <img src='@routes.Assets.at("/public/images", "starfinder-ship.png")'/>
+            A ship
+          </a>
+        }
+        <a id='start-gm'>
+          <img src='@routes.Assets.at("/public/images", if (gameData.isStarfinder) "starfinder-gm.png" else "gm.png")'/>
           @(if(gameData.isDnd) "Dungeon Master" else "Game Master")
         </a>
       </div>

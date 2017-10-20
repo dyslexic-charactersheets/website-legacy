@@ -25,7 +25,7 @@ object GameData {
       coreSkills = (json \ "coreSkills").as[List[String]],
       summarySkills = (json \ "summarySkills").as[List[String]],
       knowledgeSkills = (json \ "knowledgeSkills").as[List[String]],
-      animalSkills = (json \ "animalSkills").as[List[String]],
+      animalSkills = (json \ "animalSkills").asOpt[List[String]].getOrElse(Nil),
       consolidatedSkills = (json \ "consolidatedSkills").asOpt[Map[String, List[String]]].getOrElse(Map.empty),
       pages = (json \ "pages").as[List[JsObject]].map(parsePage),
       gm = parseGM((json \ "gm").as[JsObject]),
@@ -101,7 +101,7 @@ object GameData {
   def parseBaseClass(json: JsObject) = BaseClass(
     name = (json \ "name").as[String],
     altName = None,
-    pages = (json \ "pages").as[List[String]],
+    pages = (json \ "pages").asOpt[List[String]].getOrElse(Nil),
     variants = (json \ "variants").asOpt[List[JsObject]].getOrElse(Nil).map(parseVariant),
     axes = (json \ "axes").asOpt[List[List[String]]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
@@ -113,7 +113,7 @@ object GameData {
   def parseVariant(json: JsObject) = VariantClass(
     name = (json \ "name").as[String],
     altName = None,
-    pages = (json \ "pages").as[List[String]],
+    pages = (json \ "pages").asOpt[List[String]].getOrElse(Nil),
     axes = (json \ "axes").asOpt[List[String]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
     skillBonus = (json \ "skillBonus").asOpt[Map[String, Int]].getOrElse(Map.empty),
@@ -143,6 +143,7 @@ case class GameData (
   def isPathfinder = game == "pathfinder"
   def isDnd = isDnd35
   def isDnd35 = game == "dnd35"
+  def isStarfinder = game == "starfinder"
   def isNeoexodus = game == "neoexodus"
   def isTest = game == "test"
   def classByName(name: String) = classes.filter(_.name == name).headOption

@@ -15,6 +15,7 @@ import controllers.Application.isAprilFool
 object Composer extends Controller {
   lazy val pathfinderData = Application.pathfinderData
   lazy val dnd35Data = Application.dnd35Data
+  lazy val starfinderData = Application.starfinderData
   lazy val testData = Application.testData
 
   val pdfPath: String = Play.current.configuration.getString("charactersheets.pdf.path").getOrElse("../assets/")
@@ -23,6 +24,7 @@ object Composer extends Controller {
 
   def downloadPathfinder = downloadAction(pathfinderData)
   def downloadDnd35 = downloadAction(dnd35Data)
+  def downloadStarfinder = downloadAction(starfinderData)
   def downloadTest = downloadAction(testData)
 
   def downloadAction(gameData: GameData) = Action(parse.multipartFormData) { request =>
@@ -349,7 +351,7 @@ object Composer extends Controller {
 
       //  watermark
       if (character.watermark != "" && page.slot != "mini") {
-        writeWatermark(canvas, writer, character.watermark, colour, pageSize)
+        writeWatermark(canvas, writer, gameData, character.watermark, colour, pageSize)
       }
 
       fis.close
@@ -507,7 +509,7 @@ object Composer extends Controller {
     //  set values up
     val skillFont = textFont
     val skillFontSize = 8f
-    val attrFont = altFont
+    val attrFont = altFont(gameData)
     val attrFontSize = 10.4f
     val xFont = barbarianFont2
     val stdColour = new BaseColor(0.4f, 0.4f, 0.4f)
@@ -590,7 +592,7 @@ object Composer extends Controller {
         canvas.setGState(defaultGstate)
 
         if (!isSubSkill && !skill.noRanks) {
-          if (gameData.isPathfinder) {
+          if (gameData.isPathfinder || gameData.isStarfinder) {
             writeCheckbox(classSkillMiddle, y, classSkills.contains(skill.name))
           } else if (gameData.isDnd35) {
             val nmax = if (page.variant == Some("more")) 7 else 5
@@ -1064,6 +1066,38 @@ object Composer extends Controller {
         skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
         useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
         rageMiddle, favouredEnemyMiddle)
+
+
+    case _ if gameData.isStarfinder =>
+      println("Starfinder skill points for page variant: "+page.slot+" / "+page.variant)
+      val firstLine = 413f
+      val lineIncrement = -13.51f
+      val lineBottomOffset = -4.5f
+      val lineBoxHeight = 13f
+
+      val skillsAreaLeft = 231f
+      val skillsAreaRight = 567f
+
+      val skillNameLeft = skillsAreaLeft + 2f
+      val skillNameIndent = 16f
+      val abilityMiddle = 398f
+      val abilityOffset = -1f
+
+      val ranksMiddle = 480f
+      val useUntrainedMiddle = 345f
+      val classSkillMiddle = 449f
+      val classSkillIncrement = 8f
+
+      val rageMiddle = 0
+      val favouredEnemyMiddle = 0
+      val acpWidth = 25f
+
+      val numSlots = 29
+
+      SkillLayout(firstLine, lineIncrement, lineBottomOffset, lineBoxHeight, skillsAreaLeft, skillsAreaRight, 
+        skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
+        useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
+        rageMiddle, favouredEnemyMiddle)
   }
 
   def writeIconic(canvas: PdfContentByte, writer: PdfWriter, slot: String, imgFilename: String, iconic: Option[IconicImage], character: CharacterData) {
@@ -1216,7 +1250,7 @@ object Composer extends Controller {
     }
   }
 
-  def writeWatermark(canvas: PdfContentByte, writer: PdfWriter, watermark: String, colour: String, pageSize: Rectangle) {
+  def writeWatermark(canvas: PdfContentByte, writer: PdfWriter, gameData: GameData, watermark: String, colour: String, pageSize: Rectangle) {
     println("Adding watermark: "+watermark)
 
     val watermarkGstate = new PdfGState
@@ -1228,7 +1262,7 @@ object Composer extends Controller {
     val watermarkLayer = new PdfLayer("Watermark", writer)
     canvas.beginLayer(watermarkLayer)
     // val font = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.EMBEDDED)
-    canvas.setFontAndSize(altFont, (900f / watermark.length).toInt)
+    canvas.setFontAndSize(altFont(gameData), (900f / watermark.length).toInt)
     //canvas.setColorFill(new BaseColor(0f, 0f, 0f))
     canvas.setColorFill(interpretColour(colour))
 
@@ -1280,7 +1314,12 @@ object Composer extends Controller {
   val encoding = BaseFont.IDENTITY_H
   def textFont = BaseFont.createFont("public/fonts/Roboto-Condensed.ttf", encoding, true)
   def textFontBold = BaseFont.createFont("public/fonts/Roboto-BoldCondensed.ttf", encoding, true)
-  def altFont = BaseFont.createFont("public/fonts/Merriweather-Bold.ttf", encoding, true)
+  def altFont(gameData: GameData) = {
+    if (gameData.isStarfinder)
+      BaseFont.createFont("public/fonts/Exo2-Bold.otf", encoding, true)
+    else
+      BaseFont.createFont("public/fonts/Merriweather-Bold.ttf", encoding, true)
+  }
   def barbarianFont = BaseFont.createFont("public/fonts/Amatic-Bold.ttf", encoding, true)
   def barbarianFont2 = BaseFont.createFont("public/fonts/dirty-duo.ttf", encoding, true)
 
@@ -1370,6 +1409,7 @@ object Composer extends Controller {
             else
               "pathfinder/Pathfinder.png"
           case "dnd35" => "dnd35/dnd35.png"
+          case "starfinder" => "starfinder/Starfinder.jpg"
           case _ => ""
         }
       )
@@ -1448,7 +1488,7 @@ object Composer extends Controller {
 
       //  watermark
       if (character.watermark != "") {
-        writeWatermark(canvas, writer, character.watermark, colour, pageSize)
+        writeWatermark(canvas, writer, gameData, character.watermark, colour, pageSize)
       }
 
       fis.close
