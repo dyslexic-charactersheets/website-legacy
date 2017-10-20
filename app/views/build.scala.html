@@ -81,7 +81,15 @@
     </section>
 
     <section class='tab' id='class-tab'>
-      <h2 id="class-tab-title">Class</h2>
+      @if(gameData.isStarfinder) {
+        <div class='yui3-g'><div class='yui3-u-1-@gameData.layout.length'>
+          <h2 id="class-tab-title">Theme</h2>
+        </div><div class='yui3-u-1-@gameData.layout.length'>
+          <h2 id="class-tab-title">Class</h2>
+        </div></div>
+      } else {
+        <h2 id="class-tab-title">Class</h2>
+      }
 
       <fieldset id='class-fields'>
         <div class='yui3-g'>
@@ -92,7 +100,11 @@
             <ul>
             @for(clsName <- book.classes; cls <- gameData.classByName(clsName)) {
               <li>
-                <input type='checkbox' name='class-@cls.name' id='class-@cls.code' data-class='@cls.code' data-classname='@cls.name' />
+                @if(book.radio) {
+                  <input type='radio' name='switch-@bookName' value='@cls.name' id='class-@cls.code' data-class='@cls.code' data-classname='@cls.name' />
+                } else {
+                  <input type='checkbox' name='class-@cls.name' id='class-@cls.code' data-class='@cls.code' data-classname='@cls.name' />
+                }
                 <label for='class-@cls.code'>@cls.name</label>
                 @if(!cls.variants.isEmpty) {
                   @if(cls.axes.isEmpty) {

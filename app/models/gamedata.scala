@@ -88,6 +88,7 @@ object GameData {
 
   def parseBook(json: JsObject) = Book(
     name = (json \ "name").as[String],
+    radio = (json \ "radio").asOpt[Boolean].getOrElse(false),
     classes = (json \ "classes").as[List[String]]   
   )
 
@@ -218,6 +219,7 @@ case class BaseData (
 
 case class Book (
   name: String,
+  radio: Boolean,
   classes: List[String]
 )
 

@@ -16,9 +16,16 @@ object CharacterData {
     val positive = positiveData(data)
 
     // classes
-    val classNames = positive
+    val basicClassNames = positive
       .filter(_.startsWith("class-"))
-      .map(_.substring(6))
+      .map(_.substring(6)).toList
+    val switchClassNames = data
+      .filter(_._1.startsWith("switch-"))
+      .filter(_._2 != "")
+      .map(_._2).toList
+
+    val classNames = basicClassNames ::: switchClassNames
+
     val baseClasses: List[BaseClass] = classNames.flatMap(name => gameData.classByName(name)).toList
     
     val classes: List[GameClass] = baseClasses.map { cls =>
