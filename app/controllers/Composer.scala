@@ -300,7 +300,7 @@ object Composer extends Controller {
 
       //  generic image
       if (!character.hasCustomIconic && !character.iconic.isDefined && !isAprilFool)
-        writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, character)
+        writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, gameData, character)
 
       // skills
       if (page.slot == "core")
@@ -345,11 +345,9 @@ object Composer extends Controller {
 
       //  iconics
       if (character.hasCustomIconic)
-        writeIconic(canvas, writer, page.slot, character.customIconic.get.getAbsolutePath, None, character)
+        writeIconic(canvas, writer, page.slot, character.customIconic.get.getAbsolutePath, None, gameData, character)
       else if (character.iconic.isDefined)
-        writeIconic(canvas, writer, page.slot, character.iconic.get.largeFile, character.iconic, character)
-      else if (isAprilFool)
-        writeIconic(canvas, writer, page.slot, aprilFoolIconic.largeFile, None, character)
+        writeIconic(canvas, writer, page.slot, character.iconic.get.largeFile, character.iconic, gameData, character)
 
       //  watermark
       if (character.watermark != "" && page.slot != "mini") {
@@ -1120,11 +1118,11 @@ object Composer extends Controller {
         rageMiddle, favouredEnemyMiddle)
   }
 
-  def writeIconic(canvas: PdfContentByte, writer: PdfWriter, slot: String, imgFilename: String, iconic: Option[IconicImage], character: CharacterData) {
+  def writeIconic(canvas: PdfContentByte, writer: PdfWriter, slot: String, imgFilename: String, iconic: Option[IconicImage], gameData: GameData, character: CharacterData) {
     if (imgFilename != "") {
       println("Iconic image file: "+imgFilename)
       slot match {
-        case "background" | "inventory" =>
+        case "core" | "background" | "inventory" =>
           println("Adding iconic image to "+slot)
           canvas.setGState(defaultGstate)
           val imgLayer = new PdfLayer("Iconic image", writer)
@@ -1143,6 +1141,9 @@ object Composer extends Controller {
               case "background" => 
                 img.setAbsolutePosition(127f - (img.getScaledWidth() / 2), 425f)
                 copyrightX = 30f; copyrightY = 420f
+              case "core" if gameData.isStarfinder =>
+                img.setAbsolutePosition(127f - (img.getScaledWidth() / 2), 355f)
+                copyrightX = 30f; copyrightY = 350f;
               case _ =>
             }
             canvas.addImage(img)
@@ -1497,7 +1498,7 @@ object Composer extends Controller {
 
 
       //  generic image
-      writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, character)
+      writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, gameData, character)
 
       writeColourOverlay(canvas, colour, pageSize)
 
