@@ -1546,6 +1546,8 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
 
     //  additional pages
     var pages = basePages ::: classPages
+    if (character.buildMyCharacter)
+      pages = PageSlot("build", None) :: pages
     if (character.includeCharacterBackground) {
       if (character.isPathfinderSociety)
         pages = pages ::: List(PageSlot("background", Some("pathfindersociety")))

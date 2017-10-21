@@ -66,6 +66,7 @@ object CharacterData {
       logo = Logo.get(data.get("logo").getOrElse(gameData.game)),
       customLogo = if (data.get("logo") == Some("custom")) customLogo else None,
 
+      buildMyCharacter = positive.contains("build-my-character"),
       includeGM = positive.contains("gm"),
       partyDownload = positive.contains("party-download"),
       hideInventory = positive.contains("simple"),
@@ -158,6 +159,7 @@ case class CharacterData (
   logo: Option[Logo],
   customLogo: Option[File],
 
+  buildMyCharacter: Boolean,
   includeGM: Boolean,
   partyDownload: Boolean,
   hideInventory: Boolean,
