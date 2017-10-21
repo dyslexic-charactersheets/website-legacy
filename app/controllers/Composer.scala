@@ -311,6 +311,8 @@ object Composer extends Controller {
         writeSkills(canvas, writer, page, gameData, Some(character.makePhantom(gameData)), language)
       if (page.slot == "animalcompanion")
         writeSkills(canvas, writer, page, gameData, Some(character.makeAnimalCompanion(gameData)), language)
+      if (page.slot == "drone")
+        writeSkills(canvas, writer, page, gameData, Some(character.makeDrone(gameData)), language)
 
       // special composite pages
       if (page.slot == "fighter" && gameData.isPathfinder) {
@@ -394,7 +396,7 @@ object Composer extends Controller {
     canvas.setFontAndSize(font, 4.5f)
 
     if (page.a5) {
-      if (gameData.isPathfinder) {
+      if (gameData.isPathfinder || gameData.isStarfinder) {
         canvas.showTextAligned(Element.ALIGN_LEFT, "This character sheet uses trademarks and/or copyrights owned by Paizo Publishing, LLC, which are used under Paizo's", 180, 22, 0)
         canvas.showTextAligned(Element.ALIGN_LEFT, "Community Use Policy. We are expressly prohibited from charging you to use or access this content. This character sheet is not published, endorsed, or specifically approved by Paizo Publishing.", 30, 17, 0)
         canvas.showTextAligned(Element.ALIGN_LEFT, "For more information about Paizo's Community Use Policy, please visit paizo.com/communityuse. For more information about Paizo Publishing and Paizo products, please visit paizo.com.", 30, 12, 0)
@@ -405,7 +407,7 @@ object Composer extends Controller {
         canvas.showTextAligned(Element.ALIGN_LEFT, "the Wizards of the Coast. For more information about Wizards of the Coast or any of Wizards' trademarks or other intellectual property, please visit their website.", 30, 7, 0)
       }
     } else {
-      if (gameData.isPathfinder) {
+      if (gameData.isPathfinder || gameData.isStarfinder) {
         canvas.showTextAligned(Element.ALIGN_LEFT, "This character sheet uses trademarks and/or copyrights owned by Paizo Publishing, LLC, which are used under Paizo's Community Use Policy. We are expressly prohibited from charging you to use or access this content.", 180, 22, 0)
         canvas.showTextAligned(Element.ALIGN_LEFT, "This character sheet is not published, endorsed, or specifically approved by Paizo Publishing. For more information about Paizo's Community Use Policy, please visit paizo.com/communityuse. For more information about Paizo Publishing and Paizo products, please visit paizo.com.", 30, 17, 0)
       } else if (gameData.isDnd35) {
@@ -438,6 +440,9 @@ object Composer extends Controller {
 
       case "animalcompanion" =>
         gameData.animalSkills.flatMap(gameData.getSkill)
+
+      case "drone" =>
+        gameData.droneSkills.flatMap(gameData.getSkill)
 
       case "eidolon" =>
         val eidolonClass = gameData.classByName("Eidolon")
@@ -963,6 +968,21 @@ object Composer extends Controller {
         skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
         useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
         rageMiddle, favouredEnemyMiddle)
+
+    case "drone" =>
+      val firstLine = 196f
+      val lineIncrement = -13.51f
+      val skillsAreaLeft = 189f
+      val skillsAreaRight = 300f
+      val lineBottomOffset = -4.5f
+
+      val skillNameLeft = skillsAreaLeft + 2f
+      val skillNameIndent = 16f
+
+      val numSlots = 0
+
+      SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
+        skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
 
     case _ if gameData.isPathfinder =>
       println("Pathfinder skill points for page variant: "+page.slot+" / "+page.variant)

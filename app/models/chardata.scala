@@ -209,6 +209,14 @@ case class CharacterData (
     )
   }
 
+  def makeDrone(game: GameData): CharacterData = {
+    println("Drone skills: "+game.droneSkills.mkString(", "))
+    val droneClass = BaseClass("Drone", Some("Drone"), Nil, game.droneSkills)
+    this.copy(
+      classes = List(droneClass)
+    )
+  }
+
   def makeNPC(game: GameData): CharacterData = {
     val npcClass = BaseClass("NPC", None, Nil, game.coreSkills)
     this.copy(
