@@ -1090,9 +1090,9 @@ object Composer extends Controller {
 
     case _ if gameData.isStarfinder =>
       println("Starfinder skill points for page variant: "+page.slot+" / "+page.variant)
-      val firstLine = 413f
+      val firstLine = 413.2f
       val lineIncrement = -13.51f
-      val lineBottomOffset = -4.5f
+      val lineBottomOffset = -4.2f
       val lineBoxHeight = 13f
 
       val skillsAreaLeft = 231f

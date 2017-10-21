@@ -183,12 +183,14 @@
               <option value="none">None</option>
           </select></p>
     
-        <p><label for="inventory-style">Inventory style</label>
-          <select name="inventory-style" id="inventory-style">
-              <option value="auto" selected>Auto-detect</option>
-              <option value="with">With wands, scrolls and potions</option>
-              <option value="without">Without wands, scrolls and potions</option>
-          </select></p>
+        @if(!gameData.isStarfinder) {
+          <p><label for="inventory-style">Inventory style</label>
+            <select name="inventory-style" id="inventory-style">
+                <option value="auto" selected>Auto-detect</option>
+                <option value="with">With wands, scrolls and potions</option>
+                <option value="without">Without wands, scrolls and potions</option>
+            </select></p>
+          }
         </div>
 
         <h3>Skills</h3>
@@ -206,109 +208,158 @@
                 Blank</label>
           </p>
 
-          <p><label for="all-knowledge"><input type="checkbox" name="all-knowledge" id="all-knowledge" /> Include all knowledge skills</label></p>
-          <p class='info'>This reduces the space available for Craft, Profession and Perform skills. Bards get all knowledge skills anyway.</p>
+          @if(!gameData.isStarfinder) {
+            <p><label for="all-knowledge"><input type="checkbox" name="all-knowledge" id="all-knowledge" /> Include all knowledge skills</label></p>
+            <p class='info'>This reduces the space available for Craft, Profession and Perform skills. Bards get all knowledge skills anyway.</p>
+          }
 
-          <p><label for="show-perform"><input type="checkbox" name="show-perform" id="show-perform" /> Perform</label>&nbsp; 
-            <select name="perform-skill">
-              <option value="act">(act)</option>
-              <option value="comedy">(comedy)</option>
-              <option value="dance">(dance)</option>
-              <option value="keyboard">(keyboard)</option>
-              <option value="oratory">(oratory)</option>
-              <option value="percussion">(percussion)</option>
-              <option value="string">(string)</option>
-              <option value="wind">(wind)</option>
-              <option value="sing">(sing)</option>
-            </select>
-          </p>
+          @if(!gameData.isStarfinder) {
+            <p><label for="show-perform"><input type="checkbox" name="show-perform" id="show-perform" /> Perform</label>&nbsp; 
+              <select name="perform-skill">
+                <option value="act">(act)</option>
+                <option value="comedy">(comedy)</option>
+                <option value="dance">(dance)</option>
+                <option value="keyboard">(keyboard)</option>
+                <option value="oratory">(oratory)</option>
+                <option value="percussion">(percussion)</option>
+                <option value="string">(string)</option>
+                <option value="wind">(wind)</option>
+                <option value="sing">(sing)</option>
+              </select>
+            </p>
+          }
 
-          <p><label for="show-craft"><input type="checkbox" name="show-craft" id="show-craft" /> Craft</label>&nbsp; 
-            <select name="craft-skill">
-            @if(gameData.isPathfinder) {
-              <option value="alchemy">(alchemy)</option>
-              <option value="armour">(armour)</option>
-              <option value="baskets">(baskets)</option>
-              <option value="books">(books)</option>
-              <option value="bows">(bows)</option>
-              <option value="calligraphy">(calligraphy)</option>
-              <option value="carpentry">(carpentry)</option>
-              <option value="cloth">(cloth)</option>
-              <option value="clothing">(clothing)</option>
-              <option value="glass">(glass)</option>
-              <option value="jewellery">(jewellery)</option>
-              <option value="leather">(leather)</option>
-              <option value="locks">(locks)</option>
-              <option value="paintings">(paintings)</option>
-              <option value="pottery">(pottery)</option>
-              <option value="sculptures">(sculptures)</option>
-              <option value="ships">(ships)</option>
-              <option value="shoes">(shoes)</option>
-              <option value="stonemasonry">(stonemasonry)</option>
-              <option value="traps">(traps)</option>
-              <option value="weapons">(weapons)</option>
-            }
-            @if(gameData.isDnd35) {
-              <option value='alchemy'>(alchemy)</option>
-              <option value='armourer'>(armourer)</option>
-              <option value='blacksmithing'>(blacksmithing)</option>
-              <option value='bookbinding'>(bookbinding)</option>
-              <option value='bowmaking'>(bowmaking)</option>
-              <option value='brewery'>(brewery)</option>
-              <option value='calligraphy'>(calligraphy)</option>
-              <option value='carpentry'>(carpentry)</option>
-              <option value='carver'>(carver)</option>
-              <option value='chemist'>(chemist)</option>
-              <option value='founder'>(founder)</option>
-              <option value='glassblowing'>(glassblowing)</option>
-              <option value='cooking'>(cooking)</option>
-              <option value='jeweler'>(jeweler)</option>
-              <option value='leatherworking'>(leatherworking)</option>
-              <option value='masonry'>(masonry)</option>
-              <option value='mechanic'>(mechanic)</option>
-              <option value='painting'>(painting)</option>
-              <option value='pottery'>(pottery)</option>
-              <option value='sculpting'>(sculpting)</option>
-              <option value='stone masonry'>(stone masonry)</option>
-              <option value='tailor'>(tailor)</option>
-              <option value='weaving'>(weaving)</option>
-              <option value='winemaking'>(winemaking)</option>
-            }
-            </select>
-          </p>
+          @if(!gameData.isStarfinder) {
+            <p><label for="show-craft"><input type="checkbox" name="show-craft" id="show-craft" /> Craft</label>&nbsp; 
+              <select name="craft-skill">
+              @if(gameData.isPathfinder) {
+                <option value="alchemy">(alchemy)</option>
+                <option value="armour">(armour)</option>
+                <option value="baskets">(baskets)</option>
+                <option value="books">(books)</option>
+                <option value="bows">(bows)</option>
+                <option value="calligraphy">(calligraphy)</option>
+                <option value="carpentry">(carpentry)</option>
+                <option value="cloth">(cloth)</option>
+                <option value="clothing">(clothing)</option>
+                <option value="glass">(glass)</option>
+                <option value="jewellery">(jewellery)</option>
+                <option value="leather">(leather)</option>
+                <option value="locks">(locks)</option>
+                <option value="paintings">(paintings)</option>
+                <option value="pottery">(pottery)</option>
+                <option value="sculptures">(sculptures)</option>
+                <option value="ships">(ships)</option>
+                <option value="shoes">(shoes)</option>
+                <option value="stonemasonry">(stonemasonry)</option>
+                <option value="traps">(traps)</option>
+                <option value="weapons">(weapons)</option>
+              }
+              @if(gameData.isDnd35) {
+                <option value='alchemy'>(alchemy)</option>
+                <option value='armourer'>(armourer)</option>
+                <option value='blacksmithing'>(blacksmithing)</option>
+                <option value='bookbinding'>(bookbinding)</option>
+                <option value='bowmaking'>(bowmaking)</option>
+                <option value='brewery'>(brewery)</option>
+                <option value='calligraphy'>(calligraphy)</option>
+                <option value='carpentry'>(carpentry)</option>
+                <option value='carver'>(carver)</option>
+                <option value='chemist'>(chemist)</option>
+                <option value='founder'>(founder)</option>
+                <option value='glassblowing'>(glassblowing)</option>
+                <option value='cooking'>(cooking)</option>
+                <option value='jeweler'>(jeweler)</option>
+                <option value='leatherworking'>(leatherworking)</option>
+                <option value='masonry'>(masonry)</option>
+                <option value='mechanic'>(mechanic)</option>
+                <option value='painting'>(painting)</option>
+                <option value='pottery'>(pottery)</option>
+                <option value='sculpting'>(sculpting)</option>
+                <option value='stone masonry'>(stone masonry)</option>
+                <option value='tailor'>(tailor)</option>
+                <option value='weaving'>(weaving)</option>
+                <option value='winemaking'>(winemaking)</option>
+              }
+              </select>
+            </p>
+          }
 
           <p><label for="show-profession"><input type="checkbox" name="show-profession" id="show-profession" /> Profession</label>&nbsp; 
             <select name="profession-skill">
-              <option value='architect'>(architect)</option>
-              <option value='baker'>(baker)</option>
-              <option value='barrister'>(barrister)</option>
-              <option value='brewer'>(brewer)</option>
-              <option value='butcher'>(butcher)</option>
-              <option value='clerk'>(clerk)</option>
-              <option value='cook'>(cook)</option>
-              <option value='courtesan'>(courtesan)</option>
-              <option value='driver'>(driver)</option>
-              <option value='engineer'>(engineer)</option>
-              <option value='farmer'>(farmer)</option>
-              <option value='fisherman'>(fisherman)</option>
-              <option value='gambler'>(gambler)</option>
-              <option value='gardener'>(gardener)</option>
-              <option value='herbalist'>(herbalist)</option>
-              <option value='innkeeper'>(innkeeper)</option>
-              <option value='librarian'>(librarian)</option>
-              <option value='merchant'>(merchant)</option>
-              <option value='midwife'>(midwife)</option>
-              <option value='miller'>(miller)</option>
-              <option value='miner'>(miner)</option>
-              <option value='porter'>(porter)</option>
-              <option value='sailor'>(sailor)</option>
-              <option value='scribe'>(scribe)</option>
-              <option value='shepherd'>(shepherd)</option>
-              <option value='stable master'>(stable master)</option>
-              <option value='soldier'>(soldier)</option>
-              <option value='tanner'>(tanner)</option>
-              <option value='trapper'>(trapper)</option>
-              <option value='woodcutter'>(woodcutter)</option>
+              @if(gameData.isStarfinder) {
+                <option value="accountant">(accountant)</option>
+                <option value="actor">(actor)</option>
+                <option value="archaeologist">(archaeologist)</option>
+                <option value="architect">(architect)</option>
+                <option value="artist">(artist)</option>
+                <option value="bounty hunter">(bounty hunter)</option>
+                <option value="comedian">(comedian)</option>
+                <option value="con artist">(con artist)</option>
+                <option value="cook">(cook)</option>
+                <option value="corporate">(corporate)</option>
+                <option value="counselor">(counselor)</option>
+                <option value="courtesan">(courtesan)</option>
+                <option value="dancer">(dancer)</option>
+                <option value="dockworker">(dockworker)</option>
+                <option value="electrician">(electrician)</option>
+                <option value="farmer">(farmer)</option>
+                <option value="gambler">(gambler)</option>
+                <option value="general contractor">(general contractor)</option>
+                <option value="herbalist">(herbalist)</option>
+                <option value="lab technician">(lab technician)</option>
+                <option value="lawyer">(lawyer)</option>
+                <option value="maintenance worker">(maintenance worker)</option>
+                <option value="manager">(manager)</option>
+                <option value="mathematician,">(mathematician,)</option>
+                <option value="mercenary">(mercenary)</option>
+                <option value="merchant">(merchant)</option>
+                <option value="miner">(miner)</option>
+                <option value="musician">(musician)</option>
+                <option value="orator">(orator)</option>
+                <option value="personality">(personality)</option>
+                <option value="philosopher">(philosopher)</option>
+                <option value="poet">(poet)</option>
+                <option value="politician">(politician)</option>
+                <option value="professional">(professional)</option>
+                <option value="professor">(professor)</option>
+                <option value="psychologist">(psychologist)</option>
+                <option value="smuggler">(smuggler)</option>
+                <option value="video">(video)</option>
+                <option value="vidgamer">(vidgamer)</option>
+                <option value="writer">(writer)</option>
+              } else {
+                <option value='architect'>(architect)</option>
+                <option value='baker'>(baker)</option>
+                <option value='barrister'>(barrister)</option>
+                <option value='brewer'>(brewer)</option>
+                <option value='butcher'>(butcher)</option>
+                <option value='clerk'>(clerk)</option>
+                <option value='cook'>(cook)</option>
+                <option value='courtesan'>(courtesan)</option>
+                <option value='driver'>(driver)</option>
+                <option value='engineer'>(engineer)</option>
+                <option value='farmer'>(farmer)</option>
+                <option value='fisherman'>(fisherman)</option>
+                <option value='gambler'>(gambler)</option>
+                <option value='gardener'>(gardener)</option>
+                <option value='herbalist'>(herbalist)</option>
+                <option value='innkeeper'>(innkeeper)</option>
+                <option value='librarian'>(librarian)</option>
+                <option value='merchant'>(merchant)</option>
+                <option value='midwife'>(midwife)</option>
+                <option value='miller'>(miller)</option>
+                <option value='miner'>(miner)</option>
+                <option value='porter'>(porter)</option>
+                <option value='sailor'>(sailor)</option>
+                <option value='scribe'>(scribe)</option>
+                <option value='shepherd'>(shepherd)</option>
+                <option value='stable master'>(stable master)</option>
+                <option value='soldier'>(soldier)</option>
+                <option value='tanner'>(tanner)</option>
+                <option value='trapper'>(trapper)</option>
+                <option value='woodcutter'>(woodcutter)</option>
+              }
             </select>
           </p>
 
@@ -319,10 +370,12 @@
           @if(gameData.isPathfinder) {
             <p class='indent'><label for="include-pathfinder-society"><input type="checkbox" name="include-pathfinder-society" id="include-pathfinder-society" /> Pathfinder Society</label></p>
           }
-          <p><label for="include-lycanthrope"><input type="checkbox" name="include-lycanthrope" id="include-lycanthrope" /> Lycanthrope</label></p>
-          <p><label for="include-party-funds"><input type="checkbox" name="include-party-funds" id="include-party-funds" /> Party funds</label></p>
-          <p><label for="include-animal-companion"><input type="checkbox" name="include-animal-companion" id="include-animal-companion" /> Animal companion</label></p>
-          <p class='info'>Wizards, Rangers, Witches etc get the animal companion automatically</p>
+          @if(gameData.isPathfinder || gameData.isDnd35) {
+            <p><label for="include-lycanthrope"><input type="checkbox" name="include-lycanthrope" id="include-lycanthrope" /> Lycanthrope</label></p>
+            <p><label for="include-party-funds"><input type="checkbox" name="include-party-funds" id="include-party-funds" /> Party funds</label></p>
+            <p><label for="include-animal-companion"><input type="checkbox" name="include-animal-companion" id="include-animal-companion" /> Animal companion</label></p>
+            <p class='info'>Wizards, Rangers, Witches etc get the animal companion automatically</p>
+          }
           @if(gameData.isPathfinder) {
             <p><label for="include-intelligent-item"><input type="checkbox" name="include-intelligent-item" id="include-intelligent-item" /> Intelligent item</label></p>
           }
