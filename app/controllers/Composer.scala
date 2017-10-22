@@ -511,6 +511,7 @@ object Composer extends Controller {
 
     //  set values up
     val skillFont = textFont
+    val skillFontBold = textFontBold
     val skillFontSize = 8f
     val attrFont = altFont(gameData)
     val attrFontSize = 10.4f
@@ -550,7 +551,8 @@ object Composer extends Controller {
       val y = firstLine + pos * lineIncrement
       val nameLeft = if (isSubSkill) skillNameLeft + skillNameIndent else skillNameLeft
       val skillColour = if (skill.noRanks || isSubSkill) fillColour else stdColour
-      canvas.setFontAndSize(skillFont, skillFontSize)
+      val font = if (skill.highlight) skillFontBold else skillFont
+      canvas.setFontAndSize(font, skillFontSize)
       canvas.setColorFill(skillColour)
       canvas.setGState(defaultGstate)
       canvas.beginText
@@ -593,6 +595,13 @@ object Composer extends Controller {
         canvas.endText
 
         canvas.setGState(defaultGstate)
+
+        if (skill.boxRanks) {
+          canvas.setColorStroke(stdColour)
+          canvas.setLineWidth(1f)
+          canvas.rectangle(ranksMiddle - acpWidth, y + lineBottomOffset, acpWidth, -lineIncrement)
+          canvas.stroke()
+        }
 
         if (!isSubSkill && !skill.noRanks) {
           if (gameData.isPathfinder || gameData.isStarfinder) {
@@ -1101,7 +1110,7 @@ object Composer extends Controller {
       val abilityMiddle = 398f
       val abilityOffset = -1f
 
-      val ranksMiddle = 480f
+      val ranksMiddle = 440.8f
       val useUntrainedMiddle = 345f
       val classSkillMiddle = 449f
       val classSkillIncrement = 8f
