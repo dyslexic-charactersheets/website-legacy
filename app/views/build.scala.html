@@ -221,9 +221,11 @@
             <p class='info'>This reduces the space available for Craft, Profession and Perform skills. Bards get all knowledge skills anyway.</p>
           }
 
+          <table id='flexi-skills'>
           @if(!gameData.isStarfinder) {
-            <p><label for="show-perform"><input type="checkbox" name="show-perform" id="show-perform" /> Perform</label>&nbsp; 
-              <select name="perform-skill">
+            <tr><td><label for="show-perform"><input type="checkbox" name="show-perform" id="show-perform" /> Perform</label></td>
+              <td id='perform-group'>
+              <select name="perform-skill-0">
                 <option value="act">(act)</option>
                 <option value="comedy">(comedy)</option>
                 <option value="dance">(dance)</option>
@@ -234,12 +236,16 @@
                 <option value="wind">(wind)</option>
                 <option value="sing">(sing)</option>
               </select>
-            </p>
+              </td><td>
+                <a class='button mini perform-more'>+</a>
+              </td>
+            </tr>
           }
 
           @if(!gameData.isStarfinder) {
-            <p><label for="show-craft"><input type="checkbox" name="show-craft" id="show-craft" /> Craft</label>&nbsp; 
-              <select name="craft-skill">
+            <tr><td><label for="show-craft"><input type="checkbox" name="show-craft" id="show-craft" /> Craft</label></td>
+              <td id='craft-group'>
+              <select name="craft-skill-0">
               @if(gameData.isPathfinder) {
                 <option value="alchemy">(alchemy)</option>
                 <option value="armour">(armour)</option>
@@ -290,11 +296,15 @@
                 <option value='winemaking'>(winemaking)</option>
               }
               </select>
-            </p>
+              </td><td>
+                <a class='button mini craft-more'>+</a>
+              </td>
+            </tr>
           }
 
-          <p><label for="show-profession"><input type="checkbox" name="show-profession" id="show-profession" /> Profession</label>&nbsp; 
-            <select name="profession-skill">
+          <tr><td><label for="show-profession"><input type="checkbox" name="show-profession" id="show-profession" /> Profession</label></td>
+            <td id='profession-group'>
+            <select name="profession-skill-0">
               @if(gameData.isStarfinder) {
                 <option value="accountant">(accountant)</option>
                 <option value="actor">(actor)</option>
@@ -369,7 +379,11 @@
                 <option value='woodcutter'>(woodcutter)</option>
               }
             </select>
-          </p>
+            </td><td>
+              <a class='button mini profession-more'>+</a>
+            </td>
+          </tr>
+          </table>
 
           <p class='info'>There may be other Craft, Perform and Profession skills, depending on setting and rules. Check with your @if(gameData.isDnd){ DM }else{ GM }</p>
 

@@ -58,6 +58,34 @@ $(function() {
     return false;
   });
 
+  $("a.perform-more").click(function () {
+    var copy = $("#perform-group select").first().clone();
+    copy.insertAfter($("#perform-group select").last());
+    $("#perform-group select").each(function (n, select) {
+      $(select).attr('name', 'perform-skill-'+n);
+    });
+  });
+
+  // $("a.perform-less").click(function () {
+
+  // });
+
+  $("a.craft-more").click(function () {
+    var copy = $("#craft-group select").first().clone();
+    copy.insertAfter($("#craft-group select").last());
+    $("#craft-group select").each(function (n, select) {
+      $(select).attr('name', 'craft-skill-'+n);
+    });
+  });
+
+  $("a.profession-more").click(function () {
+    var copy = $("#profession-group select").first().clone();
+    copy.insertAfter($("#profession-group select").last());
+    $("#profession-group select").each(function (n, select) {
+      $(select).attr('name', 'profession-skill-'+n);
+    });
+  });
+
   $("#include-pathfinder-society").change(function () {
     if ($(this).is(":checked")) {
       $("#include-background").prop('checked', true);
