@@ -915,6 +915,21 @@ object Composer extends Controller {
       SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
         skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
 
+    case "npc" if gameData.isStarfinder =>
+      val firstLine = 281f
+      val lineIncrement = -13.7f
+      val skillsAreaLeft = 189f
+      val skillsAreaRight = 300f
+      val lineBottomOffset = -4.5f
+
+      val skillNameLeft = skillsAreaLeft + 2f
+      val skillNameIndent = 16f
+
+      val numSlots = 0
+
+      SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
+        skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
+
     case "npc" =>
       val firstLine = 512f
       val lineIncrement = -13.7f
