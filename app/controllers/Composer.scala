@@ -10,7 +10,6 @@ import com.itextpdf.text.pdf._
 import com.itextpdf.text.{Paragraph, BaseColor, Document, Image, Element, Rectangle}
 
 import models._
-import controllers.Application.isAprilFool
 
 object Composer extends Controller {
   lazy val pathfinderData = Application.pathfinderData
@@ -88,6 +87,15 @@ object Composer extends Controller {
           "Content-disposition" -> ("attachment; filename=\""+filename+"\"")
         )
 
+      case Some("starship") =>
+        val starship = StarshipData.parse(data, gameData)
+        val pdf = composeStarship(starship, gameData, sourceFolders, language)
+        val filename = "Starship.pdf"
+
+        Ok(pdf).as("application/pdf").withHeaders(
+          "Content-disposition" -> ("attachment; filename=\""+filename+"\"")
+        )
+
       case Some("gm") =>
         println("Gm...")
         val gm = if(gameData.isDnd35) "Dungeon Master" else "Game Master"
@@ -131,6 +139,51 @@ object Composer extends Controller {
     }
   }
 
+  def addPage(page: Page, gameData: GameData, folders: List[File], document: Document, writer: PdfWriter, language: String, colour: String, gmData: Option[GMData]) = {
+    println("Adding page: "+page.name)
+    for (pageFile <- locatePage(folders, page)) {
+      //val pageFile = new File(folder.getPath+"/"+page.file)
+      val fis = new FileInputStream(pageFile)
+      val reader = new PdfReader(fis)
+
+      println("GM page: "+page.name)
+
+      // get the right page size
+      val template = writer.getImportedPage(reader, 1)
+      val pageSize = reader.getPageSize(1)
+      document.setPageSize(pageSize)
+      document.newPage
+
+      //  fill with white so the blend has something to work on
+      val canvas = writer.getDirectContent
+      val baseLayer = new PdfLayer("Character Sheet", writer);
+      canvas.beginLayer(baseLayer)
+      canvas.setColorFill(BaseColor.WHITE)
+      canvas.rectangle(0f, 0f, pageSize.getWidth(), pageSize.getHeight())
+      canvas.fill
+
+      canvas.setGState(defaultGstate)
+
+      //  the page
+      canvas.addTemplate(template, 0, 0)
+      writeCopyright(canvas, writer, gameData, page)
+
+      if (page.slot == "party" || page.slot == "npc-group")
+        writeSkills(canvas, writer, page, gameData, None, language)
+
+      if (page.slot == "npc")
+        writeSkills(canvas, writer, page, gameData, None, language)
+
+      writeColourOverlay(canvas, colour, pageSize)
+      canvas.endLayer()
+
+      writeLogo(canvas, writer, page.slot, gameData, None, gmData)
+
+      //  done
+      fis.close
+    }
+  }
+
   def composeGM(gmdata: GMData, gameData: GameData, gmPageSet: String, folders: List[File], language: String): Array[Byte] = {
     val out = new ByteArrayOutputStream()
     val document = new Document
@@ -139,47 +192,8 @@ object Composer extends Controller {
     document.open
 
     def placeGMPages(pages: List[Page]) {
-      for (page <- pages; pageFile <- locatePage(folders, page)) {
-        println("Adding page: "+page.name)
-        //val pageFile = new File(folder.getPath+"/"+page.file)
-        val fis = new FileInputStream(pageFile)
-        val reader = new PdfReader(fis)
-
-        println("GM page: "+page.name)
-
-        // get the right page size
-        val template = writer.getImportedPage(reader, 1)
-        val pageSize = reader.getPageSize(1)
-        document.setPageSize(pageSize)
-        document.newPage
-
-        //  fill with white so the blend has something to work on
-        val canvas = writer.getDirectContent
-        val baseLayer = new PdfLayer("Character Sheet", writer);
-        canvas.beginLayer(baseLayer)
-        canvas.setColorFill(BaseColor.WHITE)
-        canvas.rectangle(0f, 0f, pageSize.getWidth(), pageSize.getHeight())
-        canvas.fill
-
-        canvas.setGState(defaultGstate)
-
-        //  the page
-        canvas.addTemplate(template, 0, 0)
-        writeCopyright(canvas, writer, gameData, page)
-
-        if (page.slot == "party" || page.slot == "npc-group")
-          writeSkills(canvas, writer, page, gameData, None, language)
-
-        if (page.slot == "npc")
-          writeSkills(canvas, writer, page, gameData, None, language)
-
-        writeColourOverlay(canvas, gmdata.colour, pageSize)
-        canvas.endLayer()
-
-        writeLogo(canvas, writer, page.slot, gameData, None, Some(gmdata))
-
-        //  done
-        fis.close
+      for (page <- pages) {
+        addPage(page, gameData, folders, document, writer, language, gmdata.colour, Some(gmdata))
       }
     }
 
@@ -217,6 +231,24 @@ object Composer extends Controller {
     //     placeGMPages(ap.pages)
     // }
     
+    document.close
+    out.toByteArray
+  }
+
+  def composeStarship(starship: StarshipData, gameData: GameData, folders: List[File], language: String): Array[Byte] = {
+    val out = new ByteArrayOutputStream()
+    val document = new Document
+    val writer = PdfWriter.getInstance(document, out)
+    writer.setRgbTransparencyBlending(true)
+    document.open
+
+    println("START OF STARSHIP")
+    val pages = new StarshipInterpretation(gameData, starship).pages
+
+    for (page <- pages; if !isExcludedPage(page); pageFile <- locatePage(folders, page)) {
+      addPage(page, gameData, folders, document, writer, language, starship.colour, None)
+    }
+
     document.close
     out.toByteArray
   }
@@ -265,8 +297,6 @@ object Composer extends Controller {
     defaultGstate
   }
 
-  val aprilFoolIconic = IconicImage(IconicSet("1-paizo/4-advanced-races", "1 Paizo/4 Advanced Races"), "goblin-d20", "Goblin - d20")
-
   def addCharacterPages(character: CharacterData, gameData: GameData, folders: List[File], document: Document, writer: PdfWriter, language: String) {
     val pages = new CharacterInterpretation(gameData, character).pages
 
@@ -299,7 +329,7 @@ object Composer extends Controller {
       writeCopyright(canvas, writer, gameData, page)
 
       //  generic image
-      if (!character.hasCustomIconic && !character.iconic.isDefined && !isAprilFool)
+      if (!character.hasCustomIconic && !character.iconic.isDefined)
         writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, gameData, character)
 
       // skills
@@ -324,15 +354,6 @@ object Composer extends Controller {
       if (!character.variantRules.isEmpty) {
         if (character.variantRules.contains("wounds-vigour")) {
           overlayPage(canvas, writer, folders, "Pathfinder/Variant Rules/Wounds and Vigour.pdf")
-        }
-      }
-
-      // april fool
-      if (isAprilFool) {
-        page.slot match {
-          case "core" => overlayPage(canvas, writer, folders, "Extra/Special Overlays/Character Info.pdf")
-          case "inventory" => overlayPage(canvas, writer, folders, "Extra/Special Overlays/Inventory.pdf")
-          case _ => 
         }
       }
 
@@ -424,7 +445,6 @@ object Composer extends Controller {
     if (skillsStyle == "blank") return (Nil, Nil, Map.empty)
 
     var classSkills: List[String] = character.map(_.classes.flatMap(_.skills).distinct).getOrElse(Nil)
-    val bonusSkills = if (isAprilFool) "Knowledge (aeronautics)" :: Nil else Nil
 
     var skills: List[Skill] = page.slot match {
       case "party" =>
@@ -447,14 +467,14 @@ object Composer extends Controller {
         val eidolonSkills: List[String] = eidolonClass.toList.flatMap(_.skills)
         println("Eidolon skills: "+eidolonSkills.mkString(", "))
         classSkills = eidolonSkills
-        (gameData.coreSkills ::: eidolonSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: eidolonSkills).distinct.flatMap(gameData.getSkill)
 
       case "spiritualist-phantom" =>
         val phantomClass = gameData.classByName("Phantom")
         val phantomSkills: List[String] = phantomClass.toList.flatMap(_.skills)
         println("Phantom skills: "+phantomSkills.mkString(", "))
         classSkills = phantomSkills
-        (gameData.coreSkills ::: phantomSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: phantomSkills).distinct.flatMap(gameData.getSkill)
 
       case _ =>
         val knowledgeSkills = if (character.map(_.allKnowledge).getOrElse(false)) gameData.knowledgeSkills else Nil
@@ -464,9 +484,8 @@ object Composer extends Controller {
         // println("Core skills: "+coreSkills.mkString(", "))
         // println("Class skills: "+classSkills.mkString(", "))
         if (knowledgeSkills != Nil) println("Knowledge skills: "+knowledgeSkills.mkString(", "))
-        if (bonusSkills != Nil) println("Bonus skills: "+bonusSkills.mkString(", "))
 
-        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkills ::: craftSkills ::: professionSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkills ::: craftSkills ::: professionSkills).distinct.flatMap(gameData.getSkill)
     }
 
     if (skillsStyle == "consolidated" && !gameData.consolidatedSkills.isEmpty) {
@@ -1544,7 +1563,7 @@ object Composer extends Controller {
   }
 }
 
-class CharacterInterpretation(gameData: GameData, character: CharacterData) {
+abstract class Interpretation(gameData: GameData) {
   case class PageSlot(slot: String, variant: Option[String]) {
     lazy val page: Option[Page] = {
       val ps = gameData.pages.toList.filter { p => p.slot == slot && p.variant == variant }
@@ -1562,7 +1581,21 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
       case page :: variant :: _ => PageSlot(page, Some(variant))
       case _ => throw new Exception("Wow. I guess that match really wasn't exhaustive.")
     }
+}
 
+class StarshipInterpretation(gameData: GameData, starship: StarshipData) extends Interpretation(gameData) {
+  def pages: List[Page] = {
+    val starshipClass = gameData.getGameClass("Starship")
+    val pages = starshipClass.toList.flatMap(_.pages).map(pageSlot)
+    
+    println(" -- Selected "+pages.length+" pages: "+pages.map(_.toString).mkString(", "))
+    val printPages = pages.toList.flatMap(_.page)
+    println(" -- Printing "+printPages.length+" pages: "+printPages.map(_.name).mkString(", "))
+    printPages
+  }
+}
+
+class CharacterInterpretation(gameData: GameData, character: CharacterData) extends Interpretation(gameData) {
   def selectCharacterPages(classes: List[GameClass]): List[Page] = {
     println(" -- Classes: "+classes.map(_.name).mkString(", "))
     val basePages = gameData.base.pages.toList.map(pageSlot)
@@ -1639,22 +1672,12 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
     val printPages = pages.toList.flatMap(_.page)
     println(" -- Printing "+printPages.length+" pages: "+printPages.map(_.name).mkString(", "))
     printPages
-    //printPages.sortWith((a,b) => a.pagePosition < b.pagePosition)
   }
 
   def pages = {
-    // var clsPages =
-      if (character.partyDownload)
-        character.classes.flatMap( cls => selectCharacterPages(List(cls)) )
-      else
-        selectCharacterPages(character.classes)
-
-    // var pages = 
-    //   if (character.includeGM) 
-    //     clsPages ::: gameData.gm
-    //   else
-    //     clsPages
-
-    // clsPages
+    if (character.partyDownload)
+      character.classes.flatMap( cls => selectCharacterPages(List(cls)) )
+    else
+      selectCharacterPages(character.classes)
   }
 }

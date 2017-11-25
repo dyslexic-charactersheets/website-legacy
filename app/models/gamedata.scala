@@ -156,6 +156,10 @@ case class GameData (
 
   def slugOf(str: String) = str.toLowerCase.replaceAll("[^a-z]+", " ").trim.replace(" ", "-")
 
+  def getGameClass(name: String): Option[GameClass] = {
+    classes.filter(_.name == name).headOption
+  }
+
   def getSkill(name: String): Option[Skill] = {
     var skill = skills.filter(_.name == name).headOption
 

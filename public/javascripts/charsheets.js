@@ -21,6 +21,15 @@ $(function() {
     return false;
   });
 
+  $("#start-starship").click(function () {
+    $("#download-tab-link").show();
+    $("#start-tab-link, #class-tab-link, #options-tab-link, #party-tab-link, #gm-tab-link").hide();
+    $("#download-tab-link").click();
+    $("#add-to-party").hide();
+    $("#party-readout").hide();
+    $("#start-type").val('starship');
+  });
+
   $("#start-gm").click(function () {
     $("#gm-start-tab-link").show();
     $("#start-tab-link, #party-tab-link, #class-tab-link, #options-tab-link, #download-tab-link").hide();
