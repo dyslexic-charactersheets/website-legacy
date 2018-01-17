@@ -6,6 +6,7 @@
 GET     /                           controllers.Application.index
 GET		/howto						controllers.Application.howto
 GET 	/legal						controllers.Application.legal
+GET		/translate					controllers.Application.translate
 GET     /message                    controllers.Application.leaveMessageForm
 POST    /message                    controllers.Application.leaveMessagePost
 
