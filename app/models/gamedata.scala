@@ -25,7 +25,8 @@ object GameData {
       coreSkills = (json \ "coreSkills").as[List[String]],
       summarySkills = (json \ "summarySkills").as[List[String]],
       knowledgeSkills = (json \ "knowledgeSkills").as[List[String]],
-      animalSkills = (json \ "animalSkills").as[List[String]],
+      animalSkills = (json \ "animalSkills").asOpt[List[String]].getOrElse(Nil),
+      droneSkills = (json \ "droneSkills").asOpt[List[String]].getOrElse(Nil),
       consolidatedSkills = (json \ "consolidatedSkills").asOpt[Map[String, List[String]]].getOrElse(Map.empty),
       pages = (json \ "pages").as[List[JsObject]].map(parsePage),
       gm = parseGM((json \ "gm").as[JsObject]),
@@ -46,6 +47,8 @@ object GameData {
       optional = (json \ "optional").asOpt[Boolean].getOrElse(false),
       afterFold = (json \ "afterFold").asOpt[Boolean].getOrElse(false),
       noRanks = (json \ "noRanks").asOpt[Boolean].getOrElse(false),
+      highlight = (json \ "highlight").asOpt[Boolean].getOrElse(false),
+      boxRanks = (json \ "boxRanks").asOpt[Boolean].getOrElse(false),
       plusLevel = (json \ "plusLevel").asOpt[Boolean].getOrElse(false),
       plusHalfLevel = (json \ "plusHalfLevel").asOpt[Boolean].getOrElse(false),
       noRage = (json \ "noRage").asOpt[Boolean].getOrElse(false),
@@ -88,6 +91,7 @@ object GameData {
 
   def parseBook(json: JsObject) = Book(
     name = (json \ "name").as[String],
+    radio = (json \ "radio").asOpt[Boolean].getOrElse(false),
     classes = (json \ "classes").as[List[String]]   
   )
 
@@ -101,7 +105,7 @@ object GameData {
   def parseBaseClass(json: JsObject) = BaseClass(
     name = (json \ "name").as[String],
     altName = None,
-    pages = (json \ "pages").as[List[String]],
+    pages = (json \ "pages").asOpt[List[String]].getOrElse(Nil),
     variants = (json \ "variants").asOpt[List[JsObject]].getOrElse(Nil).map(parseVariant),
     axes = (json \ "axes").asOpt[List[List[String]]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
@@ -113,7 +117,7 @@ object GameData {
   def parseVariant(json: JsObject) = VariantClass(
     name = (json \ "name").as[String],
     altName = None,
-    pages = (json \ "pages").as[List[String]],
+    pages = (json \ "pages").asOpt[List[String]].getOrElse(Nil),
     axes = (json \ "axes").asOpt[List[String]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
     skillBonus = (json \ "skillBonus").asOpt[Map[String, Int]].getOrElse(Map.empty),
@@ -131,6 +135,7 @@ case class GameData (
   summarySkills: List[String],
   knowledgeSkills: List[String],
   animalSkills: List[String],
+  droneSkills: List[String],
   consolidatedSkills: Map[String, List[String]],
   pages: List[Page],
   gm: GM,
@@ -143,12 +148,17 @@ case class GameData (
   def isPathfinder = game == "pathfinder"
   def isDnd = isDnd35
   def isDnd35 = game == "dnd35"
+  def isStarfinder = game == "starfinder"
   def isNeoexodus = game == "neoexodus"
   def isTest = game == "test"
   def classByName(name: String) = classes.filter(_.name == name).headOption
   def bookByName(name: String) = books.filter(_.name == name).headOption
 
   def slugOf(str: String) = str.toLowerCase.replaceAll("[^a-z]+", " ").trim.replace(" ", "-")
+
+  def getGameClass(name: String): Option[GameClass] = {
+    classes.filter(_.name == name).headOption
+  }
 
   def getSkill(name: String): Option[Skill] = {
     var skill = skills.filter(_.name == name).headOption
@@ -217,6 +227,7 @@ case class BaseData (
 
 case class Book (
   name: String,
+  radio: Boolean,
   classes: List[String]
 )
 
@@ -291,6 +302,8 @@ case class Skill (
   optional: Boolean,
   afterFold: Boolean,
   noRanks: Boolean,
+  highlight: Boolean,
+  boxRanks: Boolean,
   plusLevel: Boolean,
   plusHalfLevel: Boolean,
 
@@ -315,6 +328,8 @@ object Skill {
     optional = false,
     afterFold = true,
     noRanks = false,
+    highlight = false,
+    boxRanks = false,
     plusLevel = false,
     plusHalfLevel = false,
     noRage = true,

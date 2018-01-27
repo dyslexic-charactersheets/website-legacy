@@ -55,10 +55,12 @@ object Application extends Controller {
   //  build
   lazy val pathfinderData: GameData = GameData.load("pathfinder")
   lazy val dnd35Data: GameData = GameData.load("dnd35")
+  lazy val starfinderData: GameData = GameData.load("starfinder")
   lazy val testData: GameData = GameData.load("test")
 
   def buildPathfinder = Action { Ok(views.html.build(pathfinderData, iconics, iconicSets, logos, logoSets)) }
   def buildDnd35 = Action { Ok(views.html.build(dnd35Data, iconics, iconicSets, logos, logoSets)) }
+  def buildStarfinder = Action { Ok(views.html.build(starfinderData, iconics, iconicSets, logos, logoSets)) }
   def buildTest = Action { Ok(views.html.build(testData, iconics, iconicSets, logos, logoSets)) }
 
   //  messages

@@ -16,9 +16,16 @@ object CharacterData {
     val positive = positiveData(data)
 
     // classes
-    val classNames = positive
+    val basicClassNames = positive
       .filter(_.startsWith("class-"))
-      .map(_.substring(6))
+      .map(_.substring(6)).toList
+    val switchClassNames = data
+      .filter(_._1.startsWith("switch-"))
+      .filter(_._2 != "")
+      .map(_._2).toList
+
+    val classNames = basicClassNames ::: switchClassNames
+
     val baseClasses: List[BaseClass] = classNames.flatMap(name => gameData.classByName(name)).toList
     
     val classes: List[GameClass] = baseClasses.map { cls =>
@@ -46,6 +53,19 @@ object CharacterData {
     if (customAnimalIconic.isDefined) println("Custom animal companion iconic uploaded")
     if (customLogo.isDefined) println("Custom logo uploaded")
 
+    def multiSkill(base: String, name: String): List[String] = {
+      if (positive.contains("show-"+base)) {
+        for (
+          n <- (0 until 30).toList;
+          if data.contains(base+"-skill-"+n);
+          skill <- data.get(base+"-skill-"+n)
+        ) yield {
+          println("Found skill: "+name+" ("+skill+")")
+          name+" ("+skill+")"
+        }
+      } else Nil
+    }
+
     // data
     CharacterData(
       classes, 
@@ -59,24 +79,28 @@ object CharacterData {
       logo = Logo.get(data.get("logo").getOrElse(gameData.game)),
       customLogo = if (data.get("logo") == Some("custom")) customLogo else None,
 
+      buildMyCharacter = positive.contains("build-my-character"),
       includeGM = positive.contains("gm"),
       partyDownload = positive.contains("party-download"),
       hideInventory = positive.contains("simple"),
       moreClasses = positive.contains("more"),
       skillsStyle = data.get("skills-list-style").getOrElse("normal"),
       allKnowledge = positive.contains("all-knowledge"),
-      performSkill = if (positive.contains("show-perform")) {
-        println("Found performance: "+data.get("perform-skill").getOrElse("nothing"))
-        data.get("perform-skill").map("Perform ("+_+")")
-      } else None,
-      craftSkill = if (positive.contains("show-craft")) {
-        println("Found craft: "+data.get("craft-skill").getOrElse("nothing"))
-        data.get("craft-skill").map("Craft ("+_+")")
-      } else None,
-      professionSkill = if (positive.contains("show-profession")) {
-        println("Found profession: "+data.get("profession-skill").getOrElse("nothing"))
-        data.get("profession-skill").map("Profession ("+_+")")
-      } else None,
+      performSkills = multiSkill("perform", "Perform"),
+      craftSkills = multiSkill("craft", "Craft"),
+      professionSkills = multiSkill("profession", "Profession"),
+      // performSkills = if (positive.contains("show-perform")) {
+      //   println("Found performance: "+data.get("perform-skill").getOrElse("nothing"))
+      //   data.get("perform-skill").map("Perform ("+_+")")
+      // } else None,
+      // craftSkill = if (positive.contains("show-craft")) {
+      //   println("Found craft: "+data.get("craft-skill").getOrElse("nothing"))
+      //   data.get("craft-skill").map("Craft ("+_+")")
+      // } else None,
+      // professionSkill = if (positive.contains("show-profession")) {
+      //   println("Found profession: "+data.get("profession-skill").getOrElse("nothing"))
+      //   data.get("profession-skill").map("Profession ("+_+")")
+      // } else None,
       includeCharacterBackground = positive.contains("include-background"),
       isPathfinderSociety = gameData.isPathfinder && positive.contains("include-pathfinder-society"),
       includeLycanthrope = positive.contains("include-lycanthrope"),
@@ -119,7 +143,7 @@ object CharacterData {
       gmCampaign = positive.contains("gm-campaign"),
       numPCs = data.get("num-pcs").map(_.toInt).getOrElse(4),
       maps = positive.contains("maps"),
-      maps3d = data.get("maps-view").getOrElse("3d") == "3d",
+      maps3d = data.get("maps-view").getOrElse(if (gameData.isStarfinder) "2d" else "3d") == "3d",
       settlementStyle = data.get("settlement-style").getOrElse("normal"),
       aps = aps
       )
@@ -151,15 +175,16 @@ case class CharacterData (
   logo: Option[Logo],
   customLogo: Option[File],
 
+  buildMyCharacter: Boolean,
   includeGM: Boolean,
   partyDownload: Boolean,
   hideInventory: Boolean,
   moreClasses: Boolean,
   skillsStyle: String,
   allKnowledge: Boolean,
-  performSkill: Option[String],
-  craftSkill: Option[String],
-  professionSkill: Option[String],
+  performSkills: List[String],
+  craftSkills: List[String],
+  professionSkills: List[String],
   includeCharacterBackground: Boolean,
   isPathfinderSociety: Boolean,
   includeLycanthrope: Boolean,
@@ -199,6 +224,14 @@ case class CharacterData (
     val animalClass = BaseClass("Animal Companion", Some("Animal"), Nil, game.animalSkills)
     this.copy(
       classes = List(animalClass)
+    )
+  }
+
+  def makeDrone(game: GameData): CharacterData = {
+    println("Drone skills: "+game.droneSkills.mkString(", "))
+    val droneClass = BaseClass("Drone", Some("Drone"), Nil, game.droneSkills)
+    this.copy(
+      classes = List(droneClass)
     )
   }
 

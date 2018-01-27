@@ -21,6 +21,15 @@ $(function() {
     return false;
   });
 
+  $("#start-starship").click(function () {
+    $("#download-tab-link").show();
+    $("#start-tab-link, #class-tab-link, #options-tab-link, #party-tab-link, #gm-tab-link").hide();
+    $("#download-tab-link").click();
+    $("#add-to-party").hide();
+    $("#party-readout").hide();
+    $("#start-type").val('starship');
+  });
+
   $("#start-gm").click(function () {
     $("#gm-start-tab-link").show();
     $("#start-tab-link, #party-tab-link, #class-tab-link, #options-tab-link, #download-tab-link").hide();
@@ -56,6 +65,34 @@ $(function() {
     $(".wizardnav").hide();
     $("#start-type").val('all');
     return false;
+  });
+
+  $("a.perform-more").click(function () {
+    var copy = $("#perform-group select").first().clone();
+    copy.insertAfter($("#perform-group select").last());
+    $("#perform-group select").each(function (n, select) {
+      $(select).attr('name', 'perform-skill-'+n);
+    });
+  });
+
+  // $("a.perform-less").click(function () {
+
+  // });
+
+  $("a.craft-more").click(function () {
+    var copy = $("#craft-group select").first().clone();
+    copy.insertAfter($("#craft-group select").last());
+    $("#craft-group select").each(function (n, select) {
+      $(select).attr('name', 'craft-skill-'+n);
+    });
+  });
+
+  $("a.profession-more").click(function () {
+    var copy = $("#profession-group select").first().clone();
+    copy.insertAfter($("#profession-group select").last());
+    $("#profession-group select").each(function (n, select) {
+      $(select).attr('name', 'profession-skill-'+n);
+    });
   });
 
   $("#include-pathfinder-society").change(function () {

@@ -10,11 +10,11 @@ import com.itextpdf.text.pdf._
 import com.itextpdf.text.{Paragraph, BaseColor, Document, Image, Element, Rectangle}
 
 import models._
-import controllers.Application.isAprilFool
 
 object Composer extends Controller {
   lazy val pathfinderData = Application.pathfinderData
   lazy val dnd35Data = Application.dnd35Data
+  lazy val starfinderData = Application.starfinderData
   lazy val testData = Application.testData
 
   val pdfPath: String = Play.current.configuration.getString("charactersheets.pdf.path").getOrElse("../assets/")
@@ -23,6 +23,7 @@ object Composer extends Controller {
 
   def downloadPathfinder = downloadAction(pathfinderData)
   def downloadDnd35 = downloadAction(dnd35Data)
+  def downloadStarfinder = downloadAction(starfinderData)
   def downloadTest = downloadAction(testData)
 
   def downloadAction(gameData: GameData) = Action(parse.multipartFormData) { request =>
@@ -86,6 +87,15 @@ object Composer extends Controller {
           "Content-disposition" -> ("attachment; filename=\""+filename+"\"")
         )
 
+      case Some("starship") =>
+        val starship = StarshipData.parse(data, gameData)
+        val pdf = composeStarship(starship, gameData, sourceFolders, language)
+        val filename = "Starship.pdf"
+
+        Ok(pdf).as("application/pdf").withHeaders(
+          "Content-disposition" -> ("attachment; filename=\""+filename+"\"")
+        )
+
       case Some("gm") =>
         println("Gm...")
         val gm = if(gameData.isDnd35) "Dungeon Master" else "Game Master"
@@ -129,6 +139,51 @@ object Composer extends Controller {
     }
   }
 
+  def addPage(page: Page, gameData: GameData, folders: List[File], document: Document, writer: PdfWriter, language: String, colour: String, gmData: Option[GMData]) = {
+    println("Adding page: "+page.name)
+    for (pageFile <- locatePage(folders, page)) {
+      //val pageFile = new File(folder.getPath+"/"+page.file)
+      val fis = new FileInputStream(pageFile)
+      val reader = new PdfReader(fis)
+
+      println("GM page: "+page.name)
+
+      // get the right page size
+      val template = writer.getImportedPage(reader, 1)
+      val pageSize = reader.getPageSize(1)
+      document.setPageSize(pageSize)
+      document.newPage
+
+      //  fill with white so the blend has something to work on
+      val canvas = writer.getDirectContent
+      val baseLayer = new PdfLayer("Character Sheet", writer);
+      canvas.beginLayer(baseLayer)
+      canvas.setColorFill(BaseColor.WHITE)
+      canvas.rectangle(0f, 0f, pageSize.getWidth(), pageSize.getHeight())
+      canvas.fill
+
+      canvas.setGState(defaultGstate)
+
+      //  the page
+      canvas.addTemplate(template, 0, 0)
+      writeCopyright(canvas, writer, gameData, page)
+
+      if (page.slot == "party" || page.slot == "npc-group")
+        writeSkills(canvas, writer, page, gameData, None, language)
+
+      if (page.slot == "npc")
+        writeSkills(canvas, writer, page, gameData, None, language)
+
+      writeColourOverlay(canvas, colour, pageSize)
+      canvas.endLayer()
+
+      writeLogo(canvas, writer, page.slot, gameData, None, gmData)
+
+      //  done
+      fis.close
+    }
+  }
+
   def composeGM(gmdata: GMData, gameData: GameData, gmPageSet: String, folders: List[File], language: String): Array[Byte] = {
     val out = new ByteArrayOutputStream()
     val document = new Document
@@ -137,47 +192,8 @@ object Composer extends Controller {
     document.open
 
     def placeGMPages(pages: List[Page]) {
-      for (page <- pages; pageFile <- locatePage(folders, page)) {
-        println("Adding page: "+page.name)
-        //val pageFile = new File(folder.getPath+"/"+page.file)
-        val fis = new FileInputStream(pageFile)
-        val reader = new PdfReader(fis)
-
-        println("GM page: "+page.name)
-
-        // get the right page size
-        val template = writer.getImportedPage(reader, 1)
-        val pageSize = reader.getPageSize(1)
-        document.setPageSize(pageSize)
-        document.newPage
-
-        //  fill with white so the blend has something to work on
-        val canvas = writer.getDirectContent
-        val baseLayer = new PdfLayer("Character Sheet", writer);
-        canvas.beginLayer(baseLayer)
-        canvas.setColorFill(BaseColor.WHITE)
-        canvas.rectangle(0f, 0f, pageSize.getWidth(), pageSize.getHeight())
-        canvas.fill
-
-        canvas.setGState(defaultGstate)
-
-        //  the page
-        canvas.addTemplate(template, 0, 0)
-        writeCopyright(canvas, writer, gameData, page)
-
-        if (page.slot == "party" || page.slot == "npc-group")
-          writeSkills(canvas, writer, page, gameData, None, language)
-
-        if (page.slot == "npc")
-          writeSkills(canvas, writer, page, gameData, None, language)
-
-        writeColourOverlay(canvas, gmdata.colour, pageSize)
-        canvas.endLayer()
-
-        writeLogo(canvas, writer, page.slot, gameData, None, Some(gmdata))
-
-        //  done
-        fis.close
+      for (page <- pages) {
+        addPage(page, gameData, folders, document, writer, language, gmdata.colour, Some(gmdata))
       }
     }
 
@@ -215,6 +231,24 @@ object Composer extends Controller {
     //     placeGMPages(ap.pages)
     // }
     
+    document.close
+    out.toByteArray
+  }
+
+  def composeStarship(starship: StarshipData, gameData: GameData, folders: List[File], language: String): Array[Byte] = {
+    val out = new ByteArrayOutputStream()
+    val document = new Document
+    val writer = PdfWriter.getInstance(document, out)
+    writer.setRgbTransparencyBlending(true)
+    document.open
+
+    println("START OF STARSHIP")
+    val pages = new StarshipInterpretation(gameData, starship).pages
+
+    for (page <- pages; if !isExcludedPage(page); pageFile <- locatePage(folders, page)) {
+      addPage(page, gameData, folders, document, writer, language, starship.colour, None)
+    }
+
     document.close
     out.toByteArray
   }
@@ -263,8 +297,6 @@ object Composer extends Controller {
     defaultGstate
   }
 
-  val aprilFoolIconic = IconicImage(IconicSet("1-paizo/4-advanced-races", "1 Paizo/4 Advanced Races"), "goblin-d20", "Goblin - d20")
-
   def addCharacterPages(character: CharacterData, gameData: GameData, folders: List[File], document: Document, writer: PdfWriter, language: String) {
     val pages = new CharacterInterpretation(gameData, character).pages
 
@@ -297,8 +329,8 @@ object Composer extends Controller {
       writeCopyright(canvas, writer, gameData, page)
 
       //  generic image
-      if (!character.hasCustomIconic && !character.iconic.isDefined && !isAprilFool)
-        writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, character)
+      if (!character.hasCustomIconic && !character.iconic.isDefined)
+        writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, gameData, character)
 
       // skills
       if (page.slot == "core")
@@ -309,6 +341,8 @@ object Composer extends Controller {
         writeSkills(canvas, writer, page, gameData, Some(character.makePhantom(gameData)), language)
       if (page.slot == "animalcompanion")
         writeSkills(canvas, writer, page, gameData, Some(character.makeAnimalCompanion(gameData)), language)
+      if (page.slot == "drone")
+        writeSkills(canvas, writer, page, gameData, Some(character.makeDrone(gameData)), language)
 
       // special composite pages
       if (page.slot == "fighter" && gameData.isPathfinder) {
@@ -323,15 +357,6 @@ object Composer extends Controller {
         }
       }
 
-      // april fool
-      if (isAprilFool) {
-        page.slot match {
-          case "core" => overlayPage(canvas, writer, folders, "Extra/Special Overlays/Character Info.pdf")
-          case "inventory" => overlayPage(canvas, writer, folders, "Extra/Special Overlays/Inventory.pdf")
-          case _ => 
-        }
-      }
-
       writeColourOverlay(canvas, colour, pageSize)
 
       canvas.endLayer()
@@ -341,15 +366,13 @@ object Composer extends Controller {
 
       //  iconics
       if (character.hasCustomIconic)
-        writeIconic(canvas, writer, page.slot, character.customIconic.get.getAbsolutePath, None, character)
+        writeIconic(canvas, writer, page.slot, character.customIconic.get.getAbsolutePath, None, gameData, character)
       else if (character.iconic.isDefined)
-        writeIconic(canvas, writer, page.slot, character.iconic.get.largeFile, character.iconic, character)
-      else if (isAprilFool)
-        writeIconic(canvas, writer, page.slot, aprilFoolIconic.largeFile, None, character)
+        writeIconic(canvas, writer, page.slot, character.iconic.get.largeFile, character.iconic, gameData, character)
 
       //  watermark
       if (character.watermark != "" && page.slot != "mini") {
-        writeWatermark(canvas, writer, character.watermark, colour, pageSize)
+        writeWatermark(canvas, writer, gameData, character.watermark, colour, pageSize)
       }
 
       fis.close
@@ -392,7 +415,7 @@ object Composer extends Controller {
     canvas.setFontAndSize(font, 4.5f)
 
     if (page.a5) {
-      if (gameData.isPathfinder) {
+      if (gameData.isPathfinder || gameData.isStarfinder) {
         canvas.showTextAligned(Element.ALIGN_LEFT, "This character sheet uses trademarks and/or copyrights owned by Paizo Publishing, LLC, which are used under Paizo's", 180, 22, 0)
         canvas.showTextAligned(Element.ALIGN_LEFT, "Community Use Policy. We are expressly prohibited from charging you to use or access this content. This character sheet is not published, endorsed, or specifically approved by Paizo Publishing.", 30, 17, 0)
         canvas.showTextAligned(Element.ALIGN_LEFT, "For more information about Paizo's Community Use Policy, please visit paizo.com/communityuse. For more information about Paizo Publishing and Paizo products, please visit paizo.com.", 30, 12, 0)
@@ -403,7 +426,7 @@ object Composer extends Controller {
         canvas.showTextAligned(Element.ALIGN_LEFT, "the Wizards of the Coast. For more information about Wizards of the Coast or any of Wizards' trademarks or other intellectual property, please visit their website.", 30, 7, 0)
       }
     } else {
-      if (gameData.isPathfinder) {
+      if (gameData.isPathfinder || gameData.isStarfinder) {
         canvas.showTextAligned(Element.ALIGN_LEFT, "This character sheet uses trademarks and/or copyrights owned by Paizo Publishing, LLC, which are used under Paizo's Community Use Policy. We are expressly prohibited from charging you to use or access this content.", 180, 22, 0)
         canvas.showTextAligned(Element.ALIGN_LEFT, "This character sheet is not published, endorsed, or specifically approved by Paizo Publishing. For more information about Paizo's Community Use Policy, please visit paizo.com/communityuse. For more information about Paizo Publishing and Paizo products, please visit paizo.com.", 30, 17, 0)
       } else if (gameData.isDnd35) {
@@ -422,7 +445,6 @@ object Composer extends Controller {
     if (skillsStyle == "blank") return (Nil, Nil, Map.empty)
 
     var classSkills: List[String] = character.map(_.classes.flatMap(_.skills).distinct).getOrElse(Nil)
-    val bonusSkills = if (isAprilFool) "Knowledge (aeronautics)" :: Nil else Nil
 
     var skills: List[Skill] = page.slot match {
       case "party" =>
@@ -437,31 +459,33 @@ object Composer extends Controller {
       case "animalcompanion" =>
         gameData.animalSkills.flatMap(gameData.getSkill)
 
+      case "drone" =>
+        gameData.droneSkills.flatMap(gameData.getSkill)
+
       case "eidolon" =>
         val eidolonClass = gameData.classByName("Eidolon")
         val eidolonSkills: List[String] = eidolonClass.toList.flatMap(_.skills)
         println("Eidolon skills: "+eidolonSkills.mkString(", "))
         classSkills = eidolonSkills
-        (gameData.coreSkills ::: eidolonSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: eidolonSkills).distinct.flatMap(gameData.getSkill)
 
       case "spiritualist-phantom" =>
         val phantomClass = gameData.classByName("Phantom")
         val phantomSkills: List[String] = phantomClass.toList.flatMap(_.skills)
         println("Phantom skills: "+phantomSkills.mkString(", "))
         classSkills = phantomSkills
-        (gameData.coreSkills ::: phantomSkills ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: phantomSkills).distinct.flatMap(gameData.getSkill)
 
       case _ =>
         val knowledgeSkills = if (character.map(_.allKnowledge).getOrElse(false)) gameData.knowledgeSkills else Nil
-        val performSkill = character.map(_.performSkill.toList).getOrElse(Nil)
-        val craftSkill = character.map(_.craftSkill.toList).getOrElse(Nil)
-        val professionSkill = character.map(_.professionSkill.toList).getOrElse(Nil)
+        val performSkills = character.map(_.performSkills.toList).getOrElse(Nil)
+        val craftSkills = character.map(_.craftSkills.toList).getOrElse(Nil)
+        val professionSkills = character.map(_.professionSkills.toList).getOrElse(Nil)
         // println("Core skills: "+coreSkills.mkString(", "))
         // println("Class skills: "+classSkills.mkString(", "))
         if (knowledgeSkills != Nil) println("Knowledge skills: "+knowledgeSkills.mkString(", "))
-        if (bonusSkills != Nil) println("Bonus skills: "+bonusSkills.mkString(", "))
 
-        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkill ::: craftSkill ::: professionSkill ::: bonusSkills).distinct.flatMap(gameData.getSkill)
+        (gameData.coreSkills ::: classSkills ::: knowledgeSkills ::: performSkills ::: craftSkills ::: professionSkills).distinct.flatMap(gameData.getSkill)
     }
 
     if (skillsStyle == "consolidated" && !gameData.consolidatedSkills.isEmpty) {
@@ -506,8 +530,9 @@ object Composer extends Controller {
 
     //  set values up
     val skillFont = textFont
+    val skillFontBold = textFontBold
     val skillFontSize = 8f
-    val attrFont = altFont
+    val attrFont = altFont(gameData)
     val attrFontSize = 10.4f
     val xFont = barbarianFont2
     val stdColour = new BaseColor(0.4f, 0.4f, 0.4f)
@@ -545,7 +570,8 @@ object Composer extends Controller {
       val y = firstLine + pos * lineIncrement
       val nameLeft = if (isSubSkill) skillNameLeft + skillNameIndent else skillNameLeft
       val skillColour = if (skill.noRanks || isSubSkill) fillColour else stdColour
-      canvas.setFontAndSize(skillFont, skillFontSize)
+      val font = if (skill.highlight) skillFontBold else skillFont
+      canvas.setFontAndSize(font, skillFontSize)
       canvas.setColorFill(skillColour)
       canvas.setGState(defaultGstate)
       canvas.beginText
@@ -589,8 +615,15 @@ object Composer extends Controller {
 
         canvas.setGState(defaultGstate)
 
+        if (skill.boxRanks) {
+          canvas.setColorStroke(stdColour)
+          canvas.setLineWidth(1f)
+          canvas.rectangle(ranksMiddle - acpWidth, y + lineBottomOffset, acpWidth, -lineIncrement)
+          canvas.stroke()
+        }
+
         if (!isSubSkill && !skill.noRanks) {
-          if (gameData.isPathfinder) {
+          if (gameData.isPathfinder || gameData.isStarfinder) {
             writeCheckbox(classSkillMiddle, y, classSkills.contains(skill.name))
           } else if (gameData.isDnd35) {
             val nmax = if (page.variant == Some("more")) 7 else 5
@@ -901,6 +934,21 @@ object Composer extends Controller {
       SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
         skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
 
+    case "npc" if gameData.isStarfinder =>
+      val firstLine = 281f
+      val lineIncrement = -13.7f
+      val skillsAreaLeft = 189f
+      val skillsAreaRight = 300f
+      val lineBottomOffset = -4.5f
+
+      val skillNameLeft = skillsAreaLeft + 2f
+      val skillNameIndent = 16f
+
+      val numSlots = 0
+
+      SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
+        skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
+
     case "npc" =>
       val firstLine = 512f
       val lineIncrement = -13.7f
@@ -961,6 +1009,21 @@ object Composer extends Controller {
         skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
         useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
         rageMiddle, favouredEnemyMiddle)
+
+    case "drone" =>
+      val firstLine = 196f
+      val lineIncrement = -13.51f
+      val skillsAreaLeft = 189f
+      val skillsAreaRight = 300f
+      val lineBottomOffset = -4.5f
+
+      val skillNameLeft = skillsAreaLeft + 2f
+      val skillNameIndent = 16f
+
+      val numSlots = 0
+
+      SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
+        skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
 
     case _ if gameData.isPathfinder =>
       println("Pathfinder skill points for page variant: "+page.slot+" / "+page.variant)
@@ -1064,13 +1127,45 @@ object Composer extends Controller {
         skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
         useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
         rageMiddle, favouredEnemyMiddle)
+
+
+    case _ if gameData.isStarfinder =>
+      println("Starfinder skill points for page variant: "+page.slot+" / "+page.variant)
+      val firstLine = 413.2f
+      val lineIncrement = -13.51f
+      val lineBottomOffset = -4.2f
+      val lineBoxHeight = 13f
+
+      val skillsAreaLeft = 231f
+      val skillsAreaRight = 567f
+
+      val skillNameLeft = skillsAreaLeft + 2f
+      val skillNameIndent = 16f
+      val abilityMiddle = 398f
+      val abilityOffset = -1f
+
+      val ranksMiddle = 440.8f
+      val useUntrainedMiddle = 345f
+      val classSkillMiddle = 449f
+      val classSkillIncrement = 8f
+
+      val rageMiddle = 0
+      val favouredEnemyMiddle = 0
+      val acpWidth = 25f
+
+      val numSlots = 29
+
+      SkillLayout(firstLine, lineIncrement, lineBottomOffset, lineBoxHeight, skillsAreaLeft, skillsAreaRight, 
+        skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
+        useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
+        rageMiddle, favouredEnemyMiddle)
   }
 
-  def writeIconic(canvas: PdfContentByte, writer: PdfWriter, slot: String, imgFilename: String, iconic: Option[IconicImage], character: CharacterData) {
+  def writeIconic(canvas: PdfContentByte, writer: PdfWriter, slot: String, imgFilename: String, iconic: Option[IconicImage], gameData: GameData, character: CharacterData) {
     if (imgFilename != "") {
       println("Iconic image file: "+imgFilename)
       slot match {
-        case "background" | "inventory" =>
+        case "core" | "background" | "inventory" =>
           println("Adding iconic image to "+slot)
           canvas.setGState(defaultGstate)
           val imgLayer = new PdfLayer("Iconic image", writer)
@@ -1089,6 +1184,9 @@ object Composer extends Controller {
               case "background" => 
                 img.setAbsolutePosition(127f - (img.getScaledWidth() / 2), 425f)
                 copyrightX = 30f; copyrightY = 420f
+              case "core" if gameData.isStarfinder =>
+                img.setAbsolutePosition(127f - (img.getScaledWidth() / 2), 355f)
+                copyrightX = 30f; copyrightY = 350f;
               case _ =>
             }
             canvas.addImage(img)
@@ -1216,7 +1314,7 @@ object Composer extends Controller {
     }
   }
 
-  def writeWatermark(canvas: PdfContentByte, writer: PdfWriter, watermark: String, colour: String, pageSize: Rectangle) {
+  def writeWatermark(canvas: PdfContentByte, writer: PdfWriter, gameData: GameData, watermark: String, colour: String, pageSize: Rectangle) {
     println("Adding watermark: "+watermark)
 
     val watermarkGstate = new PdfGState
@@ -1228,7 +1326,7 @@ object Composer extends Controller {
     val watermarkLayer = new PdfLayer("Watermark", writer)
     canvas.beginLayer(watermarkLayer)
     // val font = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.EMBEDDED)
-    canvas.setFontAndSize(altFont, (900f / watermark.length).toInt)
+    canvas.setFontAndSize(altFont(gameData), (900f / watermark.length).toInt)
     //canvas.setColorFill(new BaseColor(0f, 0f, 0f))
     canvas.setColorFill(interpretColour(colour))
 
@@ -1280,7 +1378,12 @@ object Composer extends Controller {
   val encoding = BaseFont.IDENTITY_H
   def textFont = BaseFont.createFont("public/fonts/Roboto-Condensed.ttf", encoding, true)
   def textFontBold = BaseFont.createFont("public/fonts/Roboto-BoldCondensed.ttf", encoding, true)
-  def altFont = BaseFont.createFont("public/fonts/Merriweather-Bold.ttf", encoding, true)
+  def altFont(gameData: GameData) = {
+    if (gameData.isStarfinder)
+      BaseFont.createFont("public/fonts/Exo2-Bold.otf", encoding, true)
+    else
+      BaseFont.createFont("public/fonts/Merriweather-Bold.ttf", encoding, true)
+  }
   def barbarianFont = BaseFont.createFont("public/fonts/Amatic-Bold.ttf", encoding, true)
   def barbarianFont2 = BaseFont.createFont("public/fonts/dirty-duo.ttf", encoding, true)
 
@@ -1370,6 +1473,7 @@ object Composer extends Controller {
             else
               "pathfinder/Pathfinder.png"
           case "dnd35" => "dnd35/dnd35.png"
+          case "starfinder" => "starfinder/Starfinder.jpg"
           case _ => ""
         }
       )
@@ -1437,7 +1541,7 @@ object Composer extends Controller {
 
 
       //  generic image
-      writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, character)
+      writeIconic(canvas, writer, page.slot, iconicsPath+"generic.png", None, gameData, character)
 
       writeColourOverlay(canvas, colour, pageSize)
 
@@ -1448,7 +1552,7 @@ object Composer extends Controller {
 
       //  watermark
       if (character.watermark != "") {
-        writeWatermark(canvas, writer, character.watermark, colour, pageSize)
+        writeWatermark(canvas, writer, gameData, character.watermark, colour, pageSize)
       }
 
       fis.close
@@ -1459,7 +1563,7 @@ object Composer extends Controller {
   }
 }
 
-class CharacterInterpretation(gameData: GameData, character: CharacterData) {
+abstract class Interpretation(gameData: GameData) {
   case class PageSlot(slot: String, variant: Option[String]) {
     lazy val page: Option[Page] = {
       val ps = gameData.pages.toList.filter { p => p.slot == slot && p.variant == variant }
@@ -1477,7 +1581,21 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
       case page :: variant :: _ => PageSlot(page, Some(variant))
       case _ => throw new Exception("Wow. I guess that match really wasn't exhaustive.")
     }
+}
 
+class StarshipInterpretation(gameData: GameData, starship: StarshipData) extends Interpretation(gameData) {
+  def pages: List[Page] = {
+    val starshipClass = gameData.getGameClass("Starship")
+    val pages = starshipClass.toList.flatMap(_.pages).map(pageSlot)
+    
+    println(" -- Selected "+pages.length+" pages: "+pages.map(_.toString).mkString(", "))
+    val printPages = pages.toList.flatMap(_.page)
+    println(" -- Printing "+printPages.length+" pages: "+printPages.map(_.name).mkString(", "))
+    printPages
+  }
+}
+
+class CharacterInterpretation(gameData: GameData, character: CharacterData) extends Interpretation(gameData) {
   def selectCharacterPages(classes: List[GameClass]): List[Page] = {
     println(" -- Classes: "+classes.map(_.name).mkString(", "))
     val basePages = gameData.base.pages.toList.map(pageSlot)
@@ -1485,6 +1603,8 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
 
     //  additional pages
     var pages = basePages ::: classPages
+    if (character.buildMyCharacter)
+      pages = PageSlot("build", None) :: pages
     if (character.includeCharacterBackground) {
       if (character.isPathfinderSociety)
         pages = pages ::: List(PageSlot("background", Some("pathfindersociety")))
@@ -1552,22 +1672,12 @@ class CharacterInterpretation(gameData: GameData, character: CharacterData) {
     val printPages = pages.toList.flatMap(_.page)
     println(" -- Printing "+printPages.length+" pages: "+printPages.map(_.name).mkString(", "))
     printPages
-    //printPages.sortWith((a,b) => a.pagePosition < b.pagePosition)
   }
 
   def pages = {
-    // var clsPages =
-      if (character.partyDownload)
-        character.classes.flatMap( cls => selectCharacterPages(List(cls)) )
-      else
-        selectCharacterPages(character.classes)
-
-    // var pages = 
-    //   if (character.includeGM) 
-    //     clsPages ::: gameData.gm
-    //   else
-    //     clsPages
-
-    // clsPages
+    if (character.partyDownload)
+      character.classes.flatMap( cls => selectCharacterPages(List(cls)) )
+    else
+      selectCharacterPages(character.classes)
   }
 }
