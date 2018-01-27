@@ -28,6 +28,9 @@ object Application extends Controller {
   //  legal
   def legal = Action { Ok(views.html.legal()) }
 
+  //  translate
+  def translate = Action { Ok(views.html.translate()) }
+
   // quotes
   lazy val quotes: List[Quote] = {
     val quotesFile = new File("public/quotes.txt")
