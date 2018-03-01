@@ -160,6 +160,11 @@ case class GameData (
     classes.filter(_.name == name).headOption
   }
 
+  def getPage(slot: String, variant: Option[String]): Option[Page] = {
+    val ps = pages.toList.filter { p => p.slot == slot && p.variant == variant }
+    ps.headOption
+  }
+
   def getSkill(name: String): Option[Skill] = {
     var skill = skills.filter(_.name == name).headOption
 

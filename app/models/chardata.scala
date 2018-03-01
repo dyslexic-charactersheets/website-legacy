@@ -79,6 +79,7 @@ object CharacterData {
       logo = Logo.get(data.get("logo").getOrElse(gameData.game)),
       customLogo = if (data.get("logo") == Some("custom")) customLogo else None,
 
+      permission = positive.contains("permission"),
       buildMyCharacter = positive.contains("build-my-character"),
       includeGM = positive.contains("gm"),
       partyDownload = positive.contains("party-download"),
@@ -140,6 +141,7 @@ object CharacterData {
       watermark = if (positive.contains("has-watermark")) data.get("watermark").getOrElse("") else "",
       logo = Logo.get(data.get("logo").getOrElse(gameData.game)),
 
+      permission = positive.contains("permission"),
       gmCampaign = positive.contains("gm-campaign"),
       numPCs = data.get("num-pcs").map(_.toInt).getOrElse(4),
       maps = positive.contains("maps"),
@@ -155,6 +157,7 @@ case class GMData (
   watermark: String,
   logo: Option[Logo],
 
+  permission: Boolean,
   gmCampaign: Boolean,
   numPCs: Int,
   maps: Boolean,
@@ -175,6 +178,7 @@ case class CharacterData (
   logo: Option[Logo],
   customLogo: Option[File],
 
+  permission: Boolean,
   buildMyCharacter: Boolean,
   includeGM: Boolean,
   partyDownload: Boolean,

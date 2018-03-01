@@ -11,17 +11,19 @@ object StarshipData {
   }
 
   def parse(data: Map[String, String], gameData: GameData): StarshipData = {
-    // val positive = positiveData(data)
+    val positive = positiveData(data)
 
     // data
     StarshipData(
-      colour = data.get("colour").getOrElse("normal")
+      colour = data.get("colour").getOrElse("normal"),
+      permission = positive.contains("permission")
     )
   }
 }
 
 case class StarshipData (
-  colour: String
+  colour: String,
+  permission: Boolean
 ) {
   def getGameClass(gameData: GameData): Option[GameClass] = {
     gameData.getGameClass("Starship")
