@@ -379,6 +379,12 @@ $(function() {
   $("#close").click(function () {
     $("#blanket, #download-thanks-dialog, #iconic-select-dialog").fadeOut("fast");
   });
+
+  $(document).keyup(function(e) {
+    if (e.keyCode === 27) {
+      $("#blanket, #download-thanks-dialog, #iconic-select-dialog").fadeOut("fast");
+    }
+  });
 });
 
 /*
