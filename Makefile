@@ -1,5 +1,5 @@
 stage:
-	sbt stage
+	sudo -u charsheets sbt clean stage
 
 run:
 	killall -9 java
