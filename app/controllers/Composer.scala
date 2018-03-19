@@ -605,7 +605,7 @@ object Composer extends Controller {
         canvas.stroke()
       }
 
-      val isCorePage = page.slot == "core" || page.slot == "eidolon" || page.slot == "spiritualist-phantom"
+      val isCorePage = page.slot == "core" || page.slot == "eidolon" || page.slot == "spiritualist-phantom" || page.slot == "drone"
       if (isCorePage) {
         if (skill.useUntrained) {
           writeCheckbox(useUntrainedMiddle, y, true)
@@ -1025,11 +1025,17 @@ object Composer extends Controller {
 
       val skillNameLeft = skillsAreaLeft + 2f
       val skillNameIndent = 16f
+      val abilityMiddle = 354f
+      val abilityOffset = -1f
+
+      val useUntrainedMiddle = 290f
+      val classSkillMiddle = 332.5f
+      val classSkillIncrement = 10f
 
       val numSlots = 0
 
       SkillLayout(firstLine, lineIncrement, lineBottomOffset, 0, skillsAreaLeft, skillsAreaRight, 
-        skillNameLeft, skillNameIndent, 0, 0, 0, 0, 0, 0, 0, numSlots, 0, 0)
+        skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, 0, useUntrainedMiddle, classSkillMiddle, classSkillIncrement, 0, numSlots, 0, 0)
 
     case _ if gameData.isPathfinder =>
       println("Pathfinder skill points for page variant: "+page.slot+" / "+page.variant)
