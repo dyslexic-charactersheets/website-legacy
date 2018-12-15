@@ -28,6 +28,7 @@ object Composer extends Controller {
 
   def downloadAction(gameData: GameData) = Action(parse.multipartFormData) { request =>
     println("\n\nDownloading...")
+    println("Game: "+gameData.name);
     val customIconic = request.body.file("iconic-custom-file").map{ filepart =>
       for (contentType <- filepart.contentType)
         println("File uploaded with content type: "+contentType)
@@ -1178,6 +1179,8 @@ object Composer extends Controller {
       println("Iconic image file: "+imgFilename)
       slot match {
         case "core" | "background" | "inventory" =>
+          if (slot == "core" && !gameData.isStarfinder)
+            return;
           println("Adding iconic image to "+slot)
           canvas.setGState(defaultGstate)
           val imgLayer = new PdfLayer("Iconic image", writer)
@@ -1200,6 +1203,7 @@ object Composer extends Controller {
                 img.setAbsolutePosition(127f - (img.getScaledWidth() / 2), 355f)
                 copyrightX = 30f; copyrightY = 350f;
               case _ =>
+                println("Why am I putting this image here?");
             }
             canvas.addImage(img)
 
