@@ -137,8 +137,8 @@ case class LogoSet(filePath: String, nicePath: String) {
 case class Logo(set: LogoSet, logoPath: String, name: String) {
   lazy val fileName: Option[String] = {
     val path = set.filePath+"/"+logoPath
-    if (new File(Logo.logosPath+path+".png").exists()) Some(path+".png")
-    else if (new File(Logo.logosPath+path+".jpg").exists()) Some(path+".jpg")
+    if (new File(Logo.logosPath+"/"+path+".png").exists()) Some(path+".png")
+    else if (new File(Logo.logosPath+"/"+path+".jpg").exists()) Some(path+".jpg")
     else None
   }
   lazy val code = (set.filePath+"/"+logoPath).toLowerCase.replaceAll("[^a-z0-9]+", "-")

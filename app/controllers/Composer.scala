@@ -1489,7 +1489,7 @@ object Composer extends Controller {
             else
               "pathfinder/Pathfinder.png"
           case "dnd35" => "dnd35/dnd35.png"
-          case "starfinder" => "starfinder/Starfinder.jpg"
+          case "starfinder" => "starfinder/Starfinder.png"
           case _ => ""
         }
       )

@@ -191,6 +191,7 @@ case class GameData (
   def defaultLogo: String = game match {
     case "pathfinder" => "pathfinder-pathfinder"
     case "dnd35" => "dnd35-dnd35"
+    case "starfinder" => "starfinder-starfinder"
     case _ => ""
   }
 }
