@@ -1166,7 +1166,7 @@ object Composer extends Controller {
       val favouredEnemyMiddle = 0
       val acpWidth = 25f
 
-      val numSlots = 29
+      val numSlots = 27
 
       SkillLayout(firstLine, lineIncrement, lineBottomOffset, lineBoxHeight, skillsAreaLeft, skillsAreaRight, 
         skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
