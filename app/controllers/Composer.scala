@@ -351,6 +351,9 @@ object Composer extends Controller {
       if (page.slot == "drone")
         writeSkills(canvas, writer, page, gameData, Some(character.makeDrone(gameData)), language)
 
+      if (gameData.isStarfinder && page.slot == "core")
+        writeTheme(canvas, writer, page, gameData, Some(character), language)
+
       // special composite pages
       if (page.slot == "fighter" && gameData.isPathfinder) {
         val mathsPage = pages.filter(_.slot == "fighter-maths").head
@@ -1172,6 +1175,41 @@ object Composer extends Controller {
         skillNameLeft, skillNameIndent, abilityMiddle, abilityOffset, ranksMiddle,
         useUntrainedMiddle, classSkillMiddle, classSkillIncrement, acpWidth, numSlots,
         rageMiddle, favouredEnemyMiddle)
+  }
+
+  def writeTheme(canvas: PdfContentByte, writer: PdfWriter, page: Page,  gameData: GameData, character: Option[CharacterData], language: String) {
+    val translate = TranslationData(language)
+
+    val titleFont = textFont
+    val titleFontSize = 11f
+    val colour = new BaseColor(0.4f, 0.4f, 0.4f)
+
+    val titleX = 240f
+    val titleY = 642f
+
+    val bodyFont = textFont
+    val bodyFontSize = 9f;
+    val detailX = 265;
+    val firstLine = 623f;
+    val lineIncrement = -14.5f;
+
+    for ( char <- character; theme <- char.classes.filter(_.isTheme).headOption ) {
+      val themeName = theme.name
+      println("Writing theme: "+themeName)
+
+      canvas.setFontAndSize(titleFont, titleFontSize)
+      canvas.setColorFill(colour)
+      canvas.setGState(defaultGstate)
+
+      canvas.beginText
+      canvas.showTextAligned(Element.ALIGN_LEFT, themeName, titleX, titleY, 0)
+
+      // canvas.setFontAndSize(bodyFont, bodyFontSize)
+      // canvas.showTextAligned(Element.ALIGN_LEFT, "Foo", detailX, firstLine, 0)
+      // canvas.showTextAligned(Element.ALIGN_LEFT, "Bar", detailX, firstLine + lineIncrement, 0)
+
+      canvas.endText
+    }
   }
 
   def writeIconic(canvas: PdfContentByte, writer: PdfWriter, slot: String, imgFilename: String, iconic: Option[IconicImage], gameData: GameData, character: CharacterData) {

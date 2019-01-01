@@ -105,6 +105,7 @@ object GameData {
   def parseBaseClass(json: JsObject) = BaseClass(
     name = (json \ "name").as[String],
     altName = None,
+    isTheme = (json \ "isTheme").asOpt[Boolean].getOrElse(false),
     pages = (json \ "pages").asOpt[List[String]].getOrElse(Nil),
     variants = (json \ "variants").asOpt[List[JsObject]].getOrElse(Nil).map(parseVariant),
     axes = (json \ "axes").asOpt[List[List[String]]].getOrElse(Nil),
@@ -117,6 +118,7 @@ object GameData {
   def parseVariant(json: JsObject) = VariantClass(
     name = (json \ "name").as[String],
     altName = None,
+    isTheme = (json \ "isTheme").asOpt[Boolean].getOrElse(false),
     pages = (json \ "pages").asOpt[List[String]].getOrElse(Nil),
     axes = (json \ "axes").asOpt[List[String]].getOrElse(Nil),
     skills = (json \ "skills").asOpt[List[String]].getOrElse(Nil),
@@ -241,6 +243,7 @@ trait GameClass {
   def name: String
   def altName: Option[String]
   def shortName = name.replaceAll("^Unchained *", "").replaceAll(" *\\(.*\\)$", "")
+  def isTheme: Boolean
   def pages: List[String]
   def code = name.replaceAll("[^a-zA-Z]+", "-")
   def skills: List[String]
@@ -252,6 +255,7 @@ trait GameClass {
 case class BaseClass (
   name: String,
   altName: Option[String],
+  isTheme: Boolean,
   pages: List[String],
   skills: List[String] = Nil,
   skillBonus: Map[String, Int] = Map.empty,
@@ -271,6 +275,7 @@ case class BaseClass (
 case class VariantClass (
   name: String,
   altName: Option[String],
+  isTheme: Boolean,
   pages: List[String],
   axes: List[String] = Nil,
   skills: List[String] = Nil,
@@ -281,7 +286,7 @@ case class VariantClass (
 ) extends GameClass {
   def plusLevel = overridePlusLevel.getOrElse(Nil)
   def plusHalfLevel = overridePlusHalfLevel.getOrElse(Nil)
-  def mergeInto(base: BaseClass) = new BaseClass(name, Some(base.name), base.pages ::: pages, 
+  def mergeInto(base: BaseClass) = new BaseClass(name, Some(base.name), base.isTheme, base.pages ::: pages, 
     base.skills.filterNot(notSkills.toSet) ::: skills, mergeSkillBonus(skillBonus, base.skillBonus),
     overridePlusLevel.getOrElse(base.plusLevel), overridePlusHalfLevel.getOrElse(base.plusHalfLevel)
     )
