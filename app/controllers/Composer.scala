@@ -1194,7 +1194,7 @@ object Composer extends Controller {
     val lineIncrement = -14.5f;
 
     for ( char <- character; theme <- char.classes.filter(_.isTheme).headOption ) {
-      val themeName = theme.name
+      val themeName = translate(theme.name)
       println("Writing theme: "+themeName)
 
       canvas.setFontAndSize(titleFont, titleFontSize)
